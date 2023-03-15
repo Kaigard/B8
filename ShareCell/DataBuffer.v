@@ -19,9 +19,8 @@ module DataBuffer
   input [DataWidth - 1 : 0] WData,
   input WInc,
   output WFull,
-  output [DataWidth - 1 : 0] RData,
-  input RInc,
-  output REmpty
+  output [DataWidth - 1 : 0] RData, 
+  input RInc
 );
   
   reg [DataWidth : 0] OneDeepthMem;
@@ -30,7 +29,7 @@ module DataBuffer
       OneDeepthMem <= 'h0;
     end else begin
       case ({WInc, RInc})
-        2'b01, 2'b11 : begin
+        2'b01 : begin
           OneDeepthMem[DataWidth] <= 1'b0;
           OneDeepthMem[DataWidth - 1 : 0] <= OneDeepthMem[DataWidth - 1 : 0];
         end
@@ -45,8 +44,7 @@ module DataBuffer
     end
   end
 
-  assign RData = OneDeepthMem[DataWidth - 1 : 0];
+  assign RData = RInc ? OneDeepthMem[DataWidth - 1 : 0] : 'h0;
   assign WFull = OneDeepthMem[DataWidth];
-  assign REmpty = !OneDeepthMem[DataWidth];
 
 endmodule

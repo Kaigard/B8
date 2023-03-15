@@ -17,10 +17,9 @@ module FrontFrontFetchUnit (
     output [31:0] instAddr_fetch_o,
     output reg [31:0] inst_o
 );
-
+    
     wire WFull;
-    wire REmpty;
-    wire [31:0] inst_fetch;
+    wire [31:0] inst_fetch_buffer;
 
     assign request_o = valid_i;
     assign instAddr_fetch_o = instAddr_i;
@@ -32,38 +31,85 @@ module FrontFrontFetchUnit (
         .WData(inst_fetch_i),
         .WInc(dataOk_i && ~ready_i),
         .WFull(WFull),
-        .RData(inst_fetch),
-        .RInc(WFull && ready_i),
-        .REmpty(REmpty)
+        .RData(inst_fetch_buffer),
+        .RInc(WFull && ready_i)
     );
 
-    always @(posedge clk or negedge reset_n) begin
+    always @( * ) begin
         if(~reset_n) begin
-            inst_o <= 32'b0;
             ready_o <= 1'b0;
         end else begin
             if(ready_i && dataOk_i) begin
-                inst_o <= inst_fetch_i;
                 ready_o <= 1'b1;
             end else begin
-                if(~REmpty && ready_i) begin
-                    inst_o <= inst_fetch;
+                if(WFull && ready_i) begin
                     ready_o <= 1'b1;
                 end else begin
-                    inst_o <= inst_o;
                     ready_o <= 1'b0;
                 end
             end
         end
     end
-
     
+    /*
+    always @(posedge clk or negedge reset_n) begin
+        if(~reset_n) begin
+            inst_o <= 32'b0;
+        end else begin
+            if(WFull && ready_i) begin
+                inst_o <= inst_fetch;
+            end else begin
+                inst_o <= inst_fetch_i;
+            end
+        end
+    end
+    */
+
+    always @(posedge clk or negedge reset_n) begin
+        if(~reset_n) begin
+            inst_o <= 32'b0;
+        end else begin
+            if(ready_i && dataOk_i) begin
+                inst_o <= inst_fetch_i;
+            end else begin
+                if(WFull && ready_i) begin
+                    inst_o <= inst_fetch_buffer;
+                end else begin
+                    inst_o <= inst_o;
+                end
+            end
+        end
+    end
+
     `ifdef TestMode
+        wire WFull_test;
+        wire [31:0] instAddr_fetch_buffer;
+
+        DataBuffer #(.DataWidth(32))
+        IFUAddr_Buffer (
+            .Clk(clk),
+            .Rst(reset_n),
+            .WData(instAddr_i),
+            .WInc(dataOk_i && ~ready_i),
+            .WFull(WFull_test),
+            .RData(instAddr_fetch_buffer),
+            .RInc(WFull_test && ready_i)
+        );
+
         always @(posedge clk or negedge reset_n) begin
-            if(~reset_n)
+            if(~reset_n) begin
                 instAddr_o <= 32'b0;
-            else if(ready_i && dataOk_i)
-                instAddr_o <= instAddr_i;
+            end else begin
+                if(ready_i && dataOk_i) begin
+                    instAddr_o <= instAddr_i;
+                end else begin
+                    if(WFull_test && ready_i) begin
+                        instAddr_o <= instAddr_fetch_buffer;
+                    end else begin
+                        instAddr_o <= instAddr_o;
+                    end
+                end
+            end
         end
     `endif
 

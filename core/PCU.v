@@ -10,7 +10,6 @@ module PCU (
 );
 
     wire WFull;
-    wire REmpty;
     wire [31:0] jumpAddr_buffer;
 
     DataBuffer #(.DataWidth(32)) 
@@ -22,8 +21,7 @@ module PCU (
         .WInc(jumpFlag_i),
         .WFull(WFull),
         .RData(jumpAddr_buffer),
-        .RInc(WFull && ready_i),
-        .REmpty(REmpty)
+        .RInc(WFull && ready_i)
     );
 
     always @(posedge clk or negedge reset_n) begin
@@ -35,7 +33,7 @@ module PCU (
                 instAddr_o <= instAddr_o;
                 valid_o <= 1'b0;
             end else begin
-                if(~REmpty) begin
+                if(WFull) begin
                     instAddr_o <= jumpAddr_buffer;
                     valid_o <= 1'b1;
                 end else begin

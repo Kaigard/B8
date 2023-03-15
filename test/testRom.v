@@ -13,6 +13,7 @@ module testRom (
         $readmemh("code.mem", romReg);
     end
 
+    
     always @(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
             inst_o <= 32'b0;
@@ -25,8 +26,9 @@ module testRom (
         end
     end
 
+ 
     /*
-    assign dataOk_o = request_i;
-    assign inst_o = {romReg[instAddr_i + 3], romReg[instAddr_i + 2], romReg[instAddr_i + 1], romReg[instAddr_i]};
-    */
+    assign dataOk_o = 1'b1;
+    assign inst_o = {romReg[instAddr_i], romReg[instAddr_i + 1], romReg[instAddr_i + 2], romReg[instAddr_i + 3]};
+    */  
 endmodule

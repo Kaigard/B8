@@ -1,3 +1,4 @@
+`define TestMode 1
 module BnineCore (
     input clk,
     input reset_n,
