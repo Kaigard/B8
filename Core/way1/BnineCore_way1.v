@@ -62,4 +62,12 @@ module BnineCore_way1 (
         .inst_o(IFU_way1_inst_o)
     );
 
+    DecoderUnit_way1 B_DecoderUnit_way1(
+        `ifdef TestMode
+            .instAddr_i(IFU_way1_instAddr_o),
+            .instAddr_o(),
+        `endif
+        .inst_i(IFU_way1_inst_o)
+    );
+
 endmodule
