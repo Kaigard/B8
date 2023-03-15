@@ -3,7 +3,8 @@ module BnineCore (
     input reset_n,
     //For Test
     input jumpFlag_i,
-    input [31:0] jumpAddr_i
+    input [31:0] jumpAddr_i,
+    input ready_test
 );
 
     //PCU
@@ -76,7 +77,7 @@ module BnineCore (
         .clk(clk),
         .reset_n(reset_n),
         .valid_i(PCU_valid_o),
-        .ready_i(1'b1),
+        .ready_i(ready_test),
         .jumpFlag_i(jumpFlag_i),
         .dataOk_i(dataOk),
         .jumpAddr_i(jumpAddr_i),

@@ -13,8 +13,8 @@ module PCU (
     wire REmpty;
     wire [31:0] jumpAddr_buffer;
 
-    OneDeepthFIFO #(.DataWidth(32)) 
-    B_OneDeepthFIFO
+    DataBuffer #(.DataWidth(32)) 
+    PCU_DataBuffer
     (
         .Clk(clk),
         .Rst(reset_n),

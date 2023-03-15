@@ -8,8 +8,8 @@
  * 
  * Copyright (c) 2022 by Kai Zhou zhouk9864@gmail.com, All Rights Reserved. 
  */
- 
-module OneDeepthFIFO
+
+module DataBuffer
 #(
   parameter DataWidth = 64
 )

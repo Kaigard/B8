@@ -18,7 +18,7 @@ module testRom (
             inst_o <= 32'b0;
             dataOk_o <= 1'b0;
         end else if(request_i) begin
-            inst_o <= {romReg[instAddr_i + 3], romReg[instAddr_i + 2], romReg[instAddr_i + 1], romReg[instAddr_i]};
+            inst_o <= {romReg[instAddr_i], romReg[instAddr_i + 1], romReg[instAddr_i + 2], romReg[instAddr_i + 3]};
             dataOk_o <= 1'b1;
         end else begin
             dataOk_o <= 1'b0;
