@@ -1,4 +1,4 @@
-module PCU_readyControler(
+module PCU_readyControler_way1(
     input readyNextStep_i,
     output ready_o
 );

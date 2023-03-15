@@ -1,4 +1,4 @@
-module FrontFrontFetchUnit (
+module InstFetchUnit_way1 (
     `ifdef TestMode
         output reg [31:0] instAddr_o,
     `endif
@@ -25,7 +25,7 @@ module FrontFrontFetchUnit (
     assign instAddr_fetch_o = instAddr_i;
 
     DataBuffer #(.DataWidth(32))
-    IFU_Buffer (
+    IFU_Buffer_way1 (
         .Clk(clk),
         .Rst(reset_n),
         .WData(inst_fetch_i),
