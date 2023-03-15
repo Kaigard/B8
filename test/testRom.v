@@ -25,4 +25,8 @@ module testRom (
         end
     end
 
+    /*
+    assign dataOk_o = request_i;
+    assign inst_o = {romReg[instAddr_i + 3], romReg[instAddr_i + 2], romReg[instAddr_i + 1], romReg[instAddr_i]};
+    */
 endmodule
