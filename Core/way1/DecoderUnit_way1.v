@@ -16,7 +16,7 @@ module DecoderUnit_way1(
     output [4:0] way1_rs2Addr_o,
     output way1_rs1ReadEnable_o,
     output way1_rs2ReadEnable_o,
-    // To Ex
+    // To EU
     output [4:0] rdAddr_o,
     output rdWriteEnable_o,
     output [63:0] rs1ReadData_o,
@@ -26,11 +26,10 @@ module DecoderUnit_way1(
     output [2:0] funct3_o,
     output [6:0] funct7_o,
     output [5:0] shamt_o,
-    // To DU Register
     output valid_o,
     // To IFU
     output ready_o,
-    // To DU Register && RegFile
+    // To EU && RegFile
     output [1:0] way1_pID_o
 );
 
@@ -261,6 +260,9 @@ module DecoderUnit_way1(
     7'b0101111, 64'b0,
     7'b1010011, 64'b0
     });
+
+
+
 
 
 endmodule

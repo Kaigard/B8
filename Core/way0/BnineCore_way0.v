@@ -3,12 +3,15 @@ module BnineCore_way0 (
     input reset_n,
     input way0_dataOk_i,
     input [31:0] way0_inst_fetch_i,
+    // From RegFile
+    input [63:0] way0_rs1ReadData_i,
+    input [63:0] way0_rs2ReadData_i,
+    // To I-Cache
     output way0_request_o,
     output [31:0] way0_instAddr_fetch_o,
-    // To Regfile
+    // To RegFile
     output way0_rs1ReadEnable_o,
     output way0_rs2ReadEnable_o,
-    output [1:0] way0_pID_DU_o,
     output [4:0] way0_rs1Addr_o,
     output [4:0] way0_rs2Addr_o,
 
@@ -39,9 +42,6 @@ module BnineCore_way0 (
     // DU_way0
     wire [1:0] DU_way0_pId_o;
 
-
-    // Output MUX
-    assign way0_pID_DU_o = DU_way0_pId_o;
 
     PCU_way0 B_PCU_way0(
         .clk(clk),
@@ -90,8 +90,8 @@ module BnineCore_way0 (
         .valid_i(IFU_way0_valid_o),
         .way0_pID_i(IFU_way0_pID_o),
         .inst_i(IFU_way0_inst_o),
-        .rs1ReadData_i(),
-        .rs2ReadData_i(),
+        .rs1ReadData_i(way0_rs1ReadData_i),
+        .rs2ReadData_i(way0_rs2ReadData_i),
         // From DU Register
         .ready_i(ready_test),
         // To Regfile
