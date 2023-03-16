@@ -23,8 +23,13 @@ module BnineCore_way0 (
     //wire [31:0] IFU_way0_inst_fetch_i;
     //wire [31:0] IFU_way0_instAddr_fetch_o;
     wire IFU_way0_ready_o;
+    wire IFU_way0_ready_i;
+    wire IFU_way0_valid_o;
+    wire [1:0] IFU_way0_pID_o;
     wire [31:0] IFU_way0_inst_o;
     wire [31:0] IFU_way0_instAddr_o;
+
+    // DU_way0
 
 
     PCU_way0 B_PCU_way0(
@@ -51,7 +56,7 @@ module BnineCore_way0 (
         .clk(clk),
         .reset_n(reset_n),
         .valid_i(PCU_way0_valid_o),
-        .ready_i(ready_test),
+        .ready_i(IFU_way0_ready_i),
         .jumpFlag_i(jumpFlag_i),
         .dataOk_i(way0_dataOk_i),
         .jumpAddr_i(jumpAddr_i),
@@ -59,8 +64,10 @@ module BnineCore_way0 (
         .inst_fetch_i(way0_inst_fetch_i),
         .ready_o(IFU_way0_ready_o),
         .request_o(way0_request_o),
+        .valid_o(IFU_way0_valid_o),
         .instAddr_fetch_o(way0_instAddr_fetch_o),
-        .inst_o(IFU_way0_inst_o)
+        .inst_o(IFU_way0_inst_o),
+        .way0_pID_o(IFU_way0_pID_o)
     );
 
     DecoderUnit_way0 B_DecoderUnit_way0(
@@ -68,7 +75,35 @@ module BnineCore_way0 (
             .instAddr_i(IFU_way0_instAddr_o),
             .instAddr_o(),
         `endif
-        .inst_i(IFU_way0_inst_o)
+        // From IFU
+        .valid_i(IFU_way0_valid_o),
+        .way0_pID_i(IFU_way0_pID_o),
+        .inst_i(IFU_way0_inst_o),
+        .rs1ReadData_i(),
+        .rs2ReadData_i(),
+        // From DU Register
+        .ready_i(1'b1),
+        // To Regfile
+        .way0_rs1Addr_o(),
+        .way0_rs2Addr_o(),
+        .way0_rs1ReadEnable_o(),
+        .way0_rs2ReadEnabel_o(),
+        // To Ex
+        .rdAddr_o(),
+        .rdWriteEnable_o(),
+        .rs1ReadData_o(),
+        .rs2ReadData_o(),
+        .imm_o(),
+        .opCode_o(),
+        .funct3_o(),
+        .funct7_o(),
+        .shamt_o(),
+        // To Register
+        .valid_o(),
+        // To IFU
+        .ready_o(IFU_way0_ready_i),
+        // To DU Register && IFU
+        .way0_pID_o()
     );
 
 endmodule

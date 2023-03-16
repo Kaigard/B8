@@ -14,9 +14,10 @@ module InstFetchUnit_way0 (
     input [31:0] inst_fetch_i,
     output reg ready_o,
     output request_o,
+    output reg valid_o,
     output [31:0] instAddr_fetch_o,
     output reg [31:0] inst_o,
-    output reg [1:0] way0_pID
+    output reg [1:0] way0_pID_o
 );
     
     wire WFull;
@@ -69,18 +70,22 @@ module InstFetchUnit_way0 (
     always @(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
             inst_o <= 32'b0;
-            way0_pID <= 2'b10;
+            way0_pID_o <= 2'b10;
+            valid_o <= 1'b0;
         end else begin
             if(ready_i && dataOk_i) begin
                 inst_o <= inst_fetch_i;
-                way0_pID <= way0_pID + 2;
+                way0_pID_o <= way0_pID_o + 2;
+                valid_o <= 1'b1;
             end else begin
                 if(WFull && ready_i) begin
                     inst_o <= inst_fetch_buffer;
-                    way0_pID <= way0_pID + 2;
+                    way0_pID_o <= way0_pID_o + 2;
+                    valid_o <= 1'b1;
                 end else begin
                     inst_o <= inst_o;
-                    way0_pID <= way0_pID;
+                    way0_pID_o <= way0_pID_o;
+                    valid_o <= 1'b0;
                 end
             end
         end

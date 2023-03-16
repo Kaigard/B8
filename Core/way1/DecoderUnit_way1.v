@@ -3,9 +3,14 @@ module DecoderUnit_way1(
         input [31:0] instAddr_i,
         output [31:0] instAddr_o,
     `endif
+    // From IFU
+    input valid_i,
+    input [1:0] way1_pID_i,
     input [31:0] inst_i,
     input [63:0] rs1ReadData_i,
     input [63:0] rs2ReadData_i,
+    // From DU Register
+    input ready_i,
     // To Regfile
     output [4:0] way1_rs1Addr_o,
     output [4:0] way1_rs2Addr_o,
@@ -20,7 +25,13 @@ module DecoderUnit_way1(
     output [6:0] opCode_o,
     output [2:0] funct3_o,
     output [6:0] funct7_o,
-    output [5:0] shamt_o
+    output [5:0] shamt_o,
+    // To DU Register
+    output valid_o,
+    // To IFU
+    output ready_o,
+    // To DU Register && IFU
+    output way1_pID_o
 );
 
     `ifdef TestMode 
@@ -29,6 +40,9 @@ module DecoderUnit_way1(
 
     assign rs1ReadData_o = rs1ReadData_i;
     assign rs2ReadData_o = rs2ReadData_o;
+    assign valid_o = valid_i;
+    assign ready_o = ready_i;
+    assign way1_pID_o = way1_pID_i;
 
     // 通用译码
     assign opCode_o = inst_i[6:0];
@@ -73,7 +87,7 @@ module DecoderUnit_way1(
 
     wire csrRs1ReadEnable;
     //Warning!!!部分扩展指令集也做了译码实现，但是不一定正确！！！
-    MuxKeyWithDefault #(14, 7, 1) Id_rs1ReadEnable_mux (rs1ReadEnable, opCode_o, 1'b0, {
+    MuxKeyWithDefault #(14, 7, 1) Id_rs1ReadEnable_mux (way1_rs1ReadEnable_o, opCode_o, 1'b0, {
     //RV32
     7'b0110111, 1'b0,
     7'b0010111, 1'b0,
@@ -107,7 +121,7 @@ module DecoderUnit_way1(
         3'b101, 1'b1
     });
 
-    MuxKeyWithDefault #(14, 7, 5) Id_Rs1AddrOut (Rs1AddrOut, opCode_o, 5'b0, {
+    MuxKeyWithDefault #(14, 7, 5) Id_Rs1AddrOut (way1_rs1Addr_o, opCode_o, 5'b0, {
     7'b0110111, 5'b0,
     7'b0010111, 5'b0,
     7'b1101111, 5'b0,
@@ -126,7 +140,7 @@ module DecoderUnit_way1(
     7'b1010011, inst_i[19:15]
     });
 
-    MuxKeyWithDefault #(14, 7, 1) Id_Rs2ReadEnable (Rs2ReadEnable, opCode_o, 1'b0, {
+    MuxKeyWithDefault #(14, 7, 1) Id_Rs2ReadEnable (way1_rs2ReadEnable_o, opCode_o, 1'b0, {
     7'b0110111, 1'b0,
     7'b0010111, 1'b0,
     7'b1101111, 1'b0,
@@ -145,7 +159,7 @@ module DecoderUnit_way1(
     7'b1010011, 1'b1
     });
 
-    MuxKeyWithDefault #(14, 7, 5) Id_Rs2AddrOut (Rs2AddrOut, opCode_o, 5'b0, {
+    MuxKeyWithDefault #(14, 7, 5) Id_Rs2AddrOut (way1_rs2Addr_o, opCode_o, 5'b0, {
     7'b0110111, 5'b0,
     7'b0010111, 5'b0,
     7'b1101111, 5'b0,
@@ -167,7 +181,7 @@ module DecoderUnit_way1(
     wire RV32M_MulRdWriteEnable;
     wire RV64M_MulRdWriteEnable;
     wire CsrRdWriteEnable;
-    MuxKeyWithDefault #(14, 7, 1) Id_RdWriteEnable (RdWriteEnable, opCode_o, 1'b0, {
+    MuxKeyWithDefault #(14, 7, 1) Id_RdWriteEnable (rdWriteEnable_o, opCode_o, 1'b0, {
     7'b0110111, 1'b1,
     7'b0010111, 1'b1,
     7'b1101111, 1'b1,
@@ -207,7 +221,7 @@ module DecoderUnit_way1(
         3'b101, 1'b1
     });
 
-    MuxKeyWithDefault #(14, 7, 5) Id_RdAddrOut (RdAddrOut, opCode_o, 5'b0, {
+    MuxKeyWithDefault #(14, 7, 5) Id_RdAddrOut (rdAddr_o, opCode_o, 5'b0, {
     7'b0110111, inst_i[11:7],
     7'b0010111, inst_i[11:7],
     7'b1101111, inst_i[11:7],
