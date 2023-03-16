@@ -8,6 +8,7 @@ module BnineCore (
     input ready_test
 );
 
+    // To Mem
     wire way0_dataOk_i;
     wire way0_request_o;
     wire way1_dataOk_i;
@@ -16,6 +17,8 @@ module BnineCore (
     wire [31:0] way0_instAddr_fetch_o;
     wire [31:0] way1_inst_fetch_i;
     wire [31:0] way1_instAddr_fetch_o;
+
+    
 
     testRom u_testRom_way0 (
         .clk(clk),
@@ -42,6 +45,13 @@ module BnineCore (
         .way0_inst_fetch_i(way0_inst_fetch_i),
         .way0_request_o(way0_request_o),
         .way0_instAddr_fetch_o(way0_instAddr_fetch_o),
+        // To RegFile
+        .way0_rs1ReadEnable_o(),
+        .way0_rs2ReadEnable_o(),
+        .way0_pID_DU_o(),
+        .way0_rs1Addr_o(),
+        .way0_rs2Addr_o(),
+
         // For Test
         .jumpFlag_i(jumpFlag_i),
         .jumpAddr_i(jumpAddr_i),
@@ -55,6 +65,13 @@ module BnineCore (
         .way1_inst_fetch_i(way1_inst_fetch_i),
         .way1_request_o(way1_request_o),
         .way1_instAddr_fetch_o(way1_instAddr_fetch_o),
+        // To RegFile
+        .way1_rs1ReadEnable_o(),
+        .way1_rs2ReadEnable_o(),
+        .way1_pID_DU_o(),
+        .way1_rs1Addr_o(),
+        .way1_rs2Addr_o(),
+
         // For Test
         .jumpFlag_i(jumpFlag_i),
         .jumpAddr_i(jumpAddr_i),

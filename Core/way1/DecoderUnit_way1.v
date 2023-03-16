@@ -11,11 +11,11 @@ module DecoderUnit_way1(
     input [63:0] rs2ReadData_i,
     // From DU Register
     input ready_i,
-    // To Regfile
+    // To RegFile
     output [4:0] way1_rs1Addr_o,
     output [4:0] way1_rs2Addr_o,
     output way1_rs1ReadEnable_o,
-    output way1_rs2ReadEnabel_o,
+    output way1_rs2ReadEnable_o,
     // To Ex
     output [4:0] rdAddr_o,
     output rdWriteEnable_o,
@@ -30,8 +30,8 @@ module DecoderUnit_way1(
     output valid_o,
     // To IFU
     output ready_o,
-    // To DU Register && IFU
-    output way1_pID_o
+    // To DU Register && RegFile
+    output [1:0] way1_pID_o
 );
 
     `ifdef TestMode 

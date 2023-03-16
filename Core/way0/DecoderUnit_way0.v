@@ -15,7 +15,7 @@ module DecoderUnit_way0(
     output [4:0] way0_rs1Addr_o,
     output [4:0] way0_rs2Addr_o,
     output way0_rs1ReadEnable_o,
-    output way0_rs2ReadEnabel_o,
+    output way0_rs2ReadEnable_o,
     // To Ex
     output [4:0] rdAddr_o,
     output rdWriteEnable_o,
@@ -31,7 +31,7 @@ module DecoderUnit_way0(
     // To IFU
     output ready_o,
     // To DU Register && IFU
-    output way0_pID_o
+    output [1:0] way0_pID_o
 );
 
     `ifdef TestMode 
