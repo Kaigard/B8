@@ -16,6 +16,7 @@ module DU_Register_way0(
     input [2:0] funct3_i,
     input [6:0] funct7_i,
     input [5:0] shamt_i,
+    input [1:0] way0_pID_i,
     input valid_i,
     input ready_i,
     output reg [4:0] rdAddr_o,
@@ -27,6 +28,7 @@ module DU_Register_way0(
     output reg [2:0] funct3_o,
     output reg [6:0] funct7_o,
     output reg [5:0] shamt_o,
+    output reg [1:0] way0_pID_o,
     output reg valid_o,
     output ready_o
 );
@@ -53,6 +55,7 @@ module DU_Register_way0(
             funct3_o <= 3'b0;
             funct7_o <= 7'b0;
             shamt_o <= 6'b0;
+            way0_pID_o <= 2'b0;
         end else if(valid_i && ready_o) begin
             rdAddr_o <= rdAddr_i;
             rdWriteEnable_o <= rdWriteEnable_i;
@@ -63,6 +66,7 @@ module DU_Register_way0(
             funct3_o <= funct3_i;
             funct7_o <= funct7_i;
             shamt_o <= shamt_i;
+            way0_pID_o <= way0_pID_i;
         end
     end
 
@@ -70,7 +74,7 @@ module DU_Register_way0(
         always @(posedge clk or negedge reset_n) begin
             if(~reset_n) begin
                 instAddr_o <= 32'b0;
-                inst_o <= 32'b0
+                inst_o <= 32'b0;
             end else if(valid_i && ready_o) begin
                 instAddr_o <= instAddr_i;
                 inst_o <= inst_i;

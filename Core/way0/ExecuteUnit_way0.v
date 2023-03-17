@@ -14,6 +14,7 @@ module ExecuteUnit_way0(
     input [2:0] funct3_i,
     input [6:0] funct7_i,
     input [5:0] shamt_i,
+    input [1:0] way0_pID_i,
     input valid_i,
     input ready_i,
 

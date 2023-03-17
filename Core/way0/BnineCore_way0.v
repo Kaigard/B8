@@ -40,7 +40,42 @@ module BnineCore_way0 (
     wire [31:0] IFU_way0_instAddr_o;
 
     // DU_way0
-    wire [1:0] DU_way0_pId_o;
+    `ifdef TestMode
+        wire [31:0] DU_way0_instAddr_o;
+        wire [31:0] DU_way0_inst_o;
+    `endif
+
+    wire [4:0] DU_way0_rdAddr_o;
+    wire DU_way0_rdWriteEnable_o;
+    wire [63:0] DU_way0_rs1ReadData_o;
+    wire [63:0] DU_way0_rs2ReadData_o;
+    wire [63:0] DU_way0_imm_o;
+    wire [6:0] DU_way0_opCode_o;
+    wire [2:0] DU_way0_funct3_o;
+    wire [6:0] DU_way0_funct7_o;
+    wire [5:0] DU_way0_shamt_o;
+    wire DU_way0_valid_o;
+    wire DU_way0_ready_i;
+    wire [1:0] DU_way0_pID_o;
+
+    // EU_way0
+    `ifdef TestMode
+        wire [31:0] EU_way0_instAddr_i;
+        wire [31:0] EU_way0_inst_i;
+    `endif
+
+    wire [4:0] EU_way0_rdAddr_i;
+    wire EU_way0_rdWriteEnable_i;
+    wire [63:0] EU_way0_rs1ReadData_i;
+    wire [63:0] EU_way0_rs2ReadData_i;
+    wire [63:0] EU_way0_imm_i;
+    wire [6:0] EU_way0_opCode_i;
+    wire [2:0] EU_way0_funct3_i;
+    wire [6:0] EU_way0_funct7_i;
+    wire [5:0] EU_way0_shamt_i;
+    wire EU_way0_valid_i;
+    wire EU_way0_ready_o;
+    wire [1:0] EU_way0_pID_i;
 
 
     PCU_way0 B_PCU_way0(
@@ -81,24 +116,6 @@ module BnineCore_way0 (
         .way0_pID_o(IFU_way0_pID_o)
     );
 
-    // DU_way0
-    `ifdef TestMode
-        wire [31:0] DU_way0_instAddr_o;
-        wire [31:0] DU_way0_inst_o;
-    `endif
-
-    wire [4:0] DU_way0_rdAddr_o;
-    wire DU_way0_rdWriteEnable_o;
-    wire [63:0] DU_way0_rs1ReadData_o;
-    wire [63:0] DU_way0_rs2ReadData_o;
-    wire [63:0] DU_way0_imm_o;
-    wire [6:0] DU_way0_opCode_o;
-    wire [2:0] DU_way0_funct3_o;
-    wire [6:0] DU_way0_funct7_o;
-    wire [5:0] DU_way0_shamt_o;
-    wire DU_way0_valid_o;
-    wire DU_way0_ready_i;
-
     DecoderUnit_way0 B_DecoderUnit_way0(
         `ifdef TestMode
             .instAddr_i(IFU_way0_instAddr_o),
@@ -133,7 +150,7 @@ module BnineCore_way0 (
         // To IFU
         .ready_o(IFU_way0_ready_i),
         // To DU Register && IFU
-        .way0_pID_o(DU_way0_pId_o)
+        .way0_pID_o(DU_way0_pID_o)
     );
 
     DU_Register_way0 B_DU_Register_way0(
@@ -154,6 +171,7 @@ module BnineCore_way0 (
         .funct3_i(DU_way0_funct3_o),
         .funct7_i(DU_way0_funct7_o),
         .shamt_i(DU_way0_shamt_o),
+        .way0_pID_i(DU_way0_pID_o),
         .valid_i(DU_way0_valid_o),
         .ready_i(EU_way0_ready_o),
         .rdAddr_o(EU_way0_rdAddr_i),
@@ -165,29 +183,10 @@ module BnineCore_way0 (
         .funct3_o(EU_way0_funct3_i),
         .funct7_o(EU_way0_funct7_i),
         .shamt_o(EU_way0_shamt_i),
+        .way0_pID_o(EU_way0_pID_i),
         .valid_o(EU_way0_valid_i),
         .ready_o(DU_way0_ready_i)
     );
-
-    // EU_way0
-    `ifdef TestMode
-        wire [31:0] EU_way0_instAddr_i;
-        wire [31:0] EU_way0_inst_i;
-    `endif
-
-    wire [4:0] EU_way0_rdAddr_i;
-    wire EU_way0_rdWriteEnable_i;
-    wire [63:0] EU_way0_rs1ReadData_i;
-    wire [63:0] EU_way0_rs2ReadData_i;
-    wire [63:0] EU_way0_imm_i;
-    wire [6:0] EU_way0_opCode_i;
-    wire [2:0] EU_way0_funct3_i;
-    wire [6:0] EU_way0_funct7_i;
-    wire [5:0] EU_way0_shamt_i;
-    wire EU_way0_valid_i;
-    wire EU_way0_ready_o;
-
-
 
     ExecuteUnit_way0 B_ExecuteUnit_way0(
         `ifdef TestMode
@@ -205,8 +204,9 @@ module BnineCore_way0 (
         .funct3_i(EU_way0_funct3_i),
         .funct7_i(EU_way0_funct7_i),
         .shamt_i(EU_way0_shamt_i),
+        .way0_pID_i(EU_way0_pID_i),
         .valid_i(EU_way0_valid_i),
-        .ready_i(ready_test)
+        .ready_i(ready_test),
 
         .ready_o(EU_way0_ready_o)
     );
