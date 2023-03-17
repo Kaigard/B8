@@ -2,6 +2,7 @@ module DecoderUnit_way0(
     `ifdef TestMode 
         input [31:0] instAddr_i,
         output [31:0] instAddr_o,
+        output [31:0] inst_o,
     `endif
     // From IFU
     input valid_i,
@@ -36,10 +37,11 @@ module DecoderUnit_way0(
 
     `ifdef TestMode 
         assign instAddr_o = instAddr_i;
+        assign inst_o = inst_i;
     `endif
 
     assign rs1ReadData_o = rs1ReadData_i;
-    assign rs2ReadData_o = rs2ReadData_o;
+    assign rs2ReadData_o = rs2ReadData_i;
     assign valid_o = valid_i;
     assign ready_o = ready_i;
     assign way0_pID_o = way0_pID_i;

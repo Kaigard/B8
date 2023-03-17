@@ -38,7 +38,7 @@ module DecoderUnit_way1(
     `endif
 
     assign rs1ReadData_o = rs1ReadData_i;
-    assign rs2ReadData_o = rs2ReadData_o;
+    assign rs2ReadData_o = rs2ReadData_i;
     assign valid_o = valid_i;
     assign ready_o = ready_i;
     assign way1_pID_o = way1_pID_i;
@@ -260,9 +260,5 @@ module DecoderUnit_way1(
     7'b0101111, 64'b0,
     7'b1010011, 64'b0
     });
-
-
-
-
 
 endmodule

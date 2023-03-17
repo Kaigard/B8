@@ -81,10 +81,29 @@ module BnineCore_way0 (
         .way0_pID_o(IFU_way0_pID_o)
     );
 
+    // DU_way0
+    `ifdef TestMode
+        wire [31:0] DU_way0_instAddr_o;
+        wire [31:0] DU_way0_inst_o;
+    `endif
+
+    wire [4:0] DU_way0_rdAddr_o;
+    wire DU_way0_rdWriteEnable_o;
+    wire [63:0] DU_way0_rs1ReadData_o;
+    wire [63:0] DU_way0_rs2ReadData_o;
+    wire [63:0] DU_way0_imm_o;
+    wire [6:0] DU_way0_opCode_o;
+    wire [2:0] DU_way0_funct3_o;
+    wire [6:0] DU_way0_funct7_o;
+    wire [5:0] DU_way0_shamt_o;
+    wire DU_way0_valid_o;
+    wire DU_way0_ready_i;
+
     DecoderUnit_way0 B_DecoderUnit_way0(
         `ifdef TestMode
             .instAddr_i(IFU_way0_instAddr_o),
-            .instAddr_o(),
+            .instAddr_o(DU_way0_instAddr_o),
+            .inst_o(DU_way0_inst_o),
         `endif
         // From IFU
         .valid_i(IFU_way0_valid_o),
@@ -93,28 +112,103 @@ module BnineCore_way0 (
         .rs1ReadData_i(way0_rs1ReadData_i),
         .rs2ReadData_i(way0_rs2ReadData_i),
         // From DU Register
-        .ready_i(ready_test),
+        .ready_i(DU_way0_ready_i),
         // To Regfile
         .way0_rs1Addr_o(way0_rs1Addr_o),
         .way0_rs2Addr_o(way0_rs2Addr_o),
         .way0_rs1ReadEnable_o(way0_rs1ReadEnable_o),
         .way0_rs2ReadEnable_o(way0_rs2ReadEnable_o),
         // To Ex
-        .rdAddr_o(),
-        .rdWriteEnable_o(),
-        .rs1ReadData_o(),
-        .rs2ReadData_o(),
-        .imm_o(),
-        .opCode_o(),
-        .funct3_o(),
-        .funct7_o(),
-        .shamt_o(),
+        .rdAddr_o(DU_way0_rdAddr_o),
+        .rdWriteEnable_o(DU_way0_rdWriteEnable_o),
+        .rs1ReadData_o(DU_way0_rs1ReadData_o),
+        .rs2ReadData_o(DU_way0_rs2ReadData_o),
+        .imm_o(DU_way0_imm_o),
+        .opCode_o(DU_way0_opCode_o),
+        .funct3_o(DU_way0_funct3_o),
+        .funct7_o(DU_way0_funct7_o),
+        .shamt_o(DU_way0_shamt_o),
         // To DU Register
-        .valid_o(),
+        .valid_o(DU_way0_valid_o),
         // To IFU
         .ready_o(IFU_way0_ready_i),
         // To DU Register && IFU
         .way0_pID_o(DU_way0_pId_o)
+    );
+
+    DU_Register_way0 B_DU_Register_way0(
+        `ifdef TestMode
+            .instAddr_i(DU_way0_instAddr_o),
+            .instAddr_o(EU_way0_instAddr_i),
+            .inst_i(DU_way0_inst_o),
+            .inst_o(EU_way0_inst_i),
+        `endif
+        .clk(clk),
+        .reset_n(reset_n),
+        .rdAddr_i(DU_way0_rdAddr_o),
+        .rdWriteEnable_i(DU_way0_rdWriteEnable_o),
+        .rs1ReadData_i(DU_way0_rs1ReadData_o),
+        .rs2ReadData_i(DU_way0_rs2ReadData_o),
+        .imm_i(DU_way0_imm_o),
+        .opCode_i(DU_way0_opCode_o),
+        .funct3_i(DU_way0_funct3_o),
+        .funct7_i(DU_way0_funct7_o),
+        .shamt_i(DU_way0_shamt_o),
+        .valid_i(DU_way0_valid_o),
+        .ready_i(EU_way0_ready_o),
+        .rdAddr_o(EU_way0_rdAddr_i),
+        .rdWriteEnable_o(EU_way0_rdWriteEnable_i),
+        .rs1ReadData_o(EU_way0_rs1ReadData_i),
+        .rs2ReadData_o(EU_way0_rs2ReadData_i),
+        .imm_o(EU_way0_imm_i),
+        .opCode_o(EU_way0_opCode_i),
+        .funct3_o(EU_way0_funct3_i),
+        .funct7_o(EU_way0_funct7_i),
+        .shamt_o(EU_way0_shamt_i),
+        .valid_o(EU_way0_valid_i),
+        .ready_o(DU_way0_ready_i)
+    );
+
+    // EU_way0
+    `ifdef TestMode
+        wire [31:0] EU_way0_instAddr_i;
+        wire [31:0] EU_way0_inst_i;
+    `endif
+
+    wire [4:0] EU_way0_rdAddr_i;
+    wire EU_way0_rdWriteEnable_i;
+    wire [63:0] EU_way0_rs1ReadData_i;
+    wire [63:0] EU_way0_rs2ReadData_i;
+    wire [63:0] EU_way0_imm_i;
+    wire [6:0] EU_way0_opCode_i;
+    wire [2:0] EU_way0_funct3_i;
+    wire [6:0] EU_way0_funct7_i;
+    wire [5:0] EU_way0_shamt_i;
+    wire EU_way0_valid_i;
+    wire EU_way0_ready_o;
+
+
+
+    ExecuteUnit_way0 B_ExecuteUnit_way0(
+        `ifdef TestMode
+            .instAddr_i(EU_way0_instAddr_i),
+            .instAddr_o(),
+            .inst_i(EU_way0_inst_i),
+            .inst_o(),
+        `endif
+        .rdAddr_i(EU_way0_rdAddr_i),
+        .rdWriteEnable_i(EU_way0_rdWriteEnable_i),
+        .rs1ReadData_i(EU_way0_rs1ReadData_i),
+        .rs2ReadData_i(EU_way0_rs2ReadData_i),
+        .imm_i(EU_way0_imm_i),
+        .opCode_i(EU_way0_opCode_i),
+        .funct3_i(EU_way0_funct3_i),
+        .funct7_i(EU_way0_funct7_i),
+        .shamt_i(EU_way0_shamt_i),
+        .valid_i(EU_way0_valid_i),
+        .ready_i(ready_test)
+
+        .ready_o(EU_way0_ready_o)
     );
 
 endmodule

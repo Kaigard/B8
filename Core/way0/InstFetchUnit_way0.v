@@ -26,6 +26,7 @@ module InstFetchUnit_way0 (
     assign request_o = valid_i;
     assign instAddr_fetch_o = instAddr_i;
 
+    // 数据暂存，防止取回数据但下一级未Ready而导致数据丢失
     DataBuffer #(.DataWidth(32))
     IFU_Buffer_way0 (
         .Clk(clk),
@@ -38,17 +39,13 @@ module InstFetchUnit_way0 (
     );
 
     always @( * ) begin
-        if(~reset_n) begin
-            ready_o <= 1'b0;
+        if(ready_i && dataOk_i) begin
+            ready_o <= 1'b1;
         end else begin
-            if(ready_i && dataOk_i) begin
+            if(WFull && ready_i) begin
                 ready_o <= 1'b1;
-            end else begin
-                if(WFull && ready_i) begin
-                    ready_o <= 1'b1;
-                end else begin
-                    ready_o <= 1'b0;
-                end
+             end else begin
+                ready_o <= 1'b0;
             end
         end
     end
