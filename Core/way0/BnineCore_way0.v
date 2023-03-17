@@ -40,13 +40,13 @@ module BnineCore_way0 (
     wire [31:0] IFU_way0_instAddr_o;
 
     // DU_way0
-    `ifdef TestMode
-        wire [31:0] DU_way0_instAddr_o;
+    `ifdef DebugMode
         wire [31:0] DU_way0_inst_o;
     `endif
 
     wire [4:0] DU_way0_rdAddr_o;
     wire DU_way0_rdWriteEnable_o;
+    wire [31:0] DU_way0_instAddr_o;
     wire [63:0] DU_way0_rs1ReadData_o;
     wire [63:0] DU_way0_rs2ReadData_o;
     wire [63:0] DU_way0_imm_o;
@@ -59,13 +59,13 @@ module BnineCore_way0 (
     wire [1:0] DU_way0_pID_o;
 
     // EU_way0
-    `ifdef TestMode
-        wire [31:0] EU_way0_instAddr_i;
+    `ifdef DebugMode
         wire [31:0] EU_way0_inst_i;
     `endif
 
     wire [4:0] EU_way0_rdAddr_i;
     wire EU_way0_rdWriteEnable_i;
+    wire [31:0] EU_way0_instAddr_i;
     wire [63:0] EU_way0_rs1ReadData_i;
     wire [63:0] EU_way0_rs2ReadData_i;
     wire [63:0] EU_way0_imm_i;
@@ -95,10 +95,6 @@ module BnineCore_way0 (
 
     InstFetchUnit_way0 B_InstFetchUnit_way0(
         //Test Port
-        `ifdef TestMode
-            .instAddr_o(IFU_way0_instAddr_o),
-        `endif
-    
         .clk(clk),
         .reset_n(reset_n),
         .valid_i(PCU_way0_valid_o),
@@ -113,19 +109,19 @@ module BnineCore_way0 (
         .valid_o(IFU_way0_valid_o),
         .instAddr_fetch_o(way0_instAddr_fetch_o),
         .inst_o(IFU_way0_inst_o),
+        .instAddr_o(IFU_way0_instAddr_o),
         .way0_pID_o(IFU_way0_pID_o)
     );
 
     DecoderUnit_way0 B_DecoderUnit_way0(
-        `ifdef TestMode
-            .instAddr_i(IFU_way0_instAddr_o),
-            .instAddr_o(DU_way0_instAddr_o),
+        `ifdef DebugMode 
             .inst_o(DU_way0_inst_o),
         `endif
         // From IFU
         .valid_i(IFU_way0_valid_o),
         .way0_pID_i(IFU_way0_pID_o),
         .inst_i(IFU_way0_inst_o),
+        .instAddr_i(IFU_way0_instAddr_o),
         .rs1ReadData_i(way0_rs1ReadData_i),
         .rs2ReadData_i(way0_rs2ReadData_i),
         // From DU Register
@@ -138,6 +134,7 @@ module BnineCore_way0 (
         // To Ex
         .rdAddr_o(DU_way0_rdAddr_o),
         .rdWriteEnable_o(DU_way0_rdWriteEnable_o),
+        .instAddr_o(DU_way0_instAddr_o),
         .rs1ReadData_o(DU_way0_rs1ReadData_o),
         .rs2ReadData_o(DU_way0_rs2ReadData_o),
         .imm_o(DU_way0_imm_o),
@@ -154,9 +151,7 @@ module BnineCore_way0 (
     );
 
     DU_Register_way0 B_DU_Register_way0(
-        `ifdef TestMode
-            .instAddr_i(DU_way0_instAddr_o),
-            .instAddr_o(EU_way0_instAddr_i),
+        `ifdef DebugMode
             .inst_i(DU_way0_inst_o),
             .inst_o(EU_way0_inst_i),
         `endif
@@ -164,6 +159,7 @@ module BnineCore_way0 (
         .reset_n(reset_n),
         .rdAddr_i(DU_way0_rdAddr_o),
         .rdWriteEnable_i(DU_way0_rdWriteEnable_o),
+        .instAddr_i(DU_way0_instAddr_o),
         .rs1ReadData_i(DU_way0_rs1ReadData_o),
         .rs2ReadData_i(DU_way0_rs2ReadData_o),
         .imm_i(DU_way0_imm_o),
@@ -176,6 +172,7 @@ module BnineCore_way0 (
         .ready_i(EU_way0_ready_o),
         .rdAddr_o(EU_way0_rdAddr_i),
         .rdWriteEnable_o(EU_way0_rdWriteEnable_i),
+        .instAddr_o(EU_way0_instAddr_i),
         .rs1ReadData_o(EU_way0_rs1ReadData_i),
         .rs2ReadData_o(EU_way0_rs2ReadData_i),
         .imm_o(EU_way0_imm_i),
@@ -189,14 +186,14 @@ module BnineCore_way0 (
     );
 
     ExecuteUnit_way0 B_ExecuteUnit_way0(
-        `ifdef TestMode
-            .instAddr_i(EU_way0_instAddr_i),
+        `ifdef DebugMode
             .instAddr_o(),
             .inst_i(EU_way0_inst_i),
             .inst_o(),
         `endif
         .rdAddr_i(EU_way0_rdAddr_i),
         .rdWriteEnable_i(EU_way0_rdWriteEnable_i),
+        .instAddr_i(EU_way0_instAddr_i),
         .rs1ReadData_i(EU_way0_rs1ReadData_i),
         .rs2ReadData_i(EU_way0_rs2ReadData_i),
         .imm_i(EU_way0_imm_i),

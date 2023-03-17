@@ -1,4 +1,4 @@
-`define TestMode 1
+`define DebugMode 1
 `define RegFileTest 1
 module BnineCore (
     input clk,

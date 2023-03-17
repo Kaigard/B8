@@ -1,5 +1,5 @@
 module DecoderUnit_way1(
-    `ifdef TestMode 
+    `ifdef DebugMode 
         input [31:0] instAddr_i,
         output [31:0] instAddr_o,
     `endif
@@ -33,7 +33,7 @@ module DecoderUnit_way1(
     output [1:0] way1_pID_o
 );
 
-    `ifdef TestMode 
+    `ifdef DebugMode 
         assign instAddr_o = instAddr_i;
     `endif
 

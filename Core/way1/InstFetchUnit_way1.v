@@ -1,5 +1,5 @@
 module InstFetchUnit_way1 (
-    `ifdef TestMode
+    `ifdef DebugMode
         output reg [31:0] instAddr_o,
     `endif
 
@@ -91,7 +91,7 @@ module InstFetchUnit_way1 (
         end
     end
 
-    `ifdef TestMode
+    `ifdef DebugMode
         wire WFull_test;
         wire [31:0] instAddr_fetch_buffer;
 

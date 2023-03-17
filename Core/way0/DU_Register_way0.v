@@ -1,7 +1,5 @@
 module DU_Register_way0(
-    `ifdef TestMode
-        input [31:0] instAddr_i,
-        output reg [31:0] instAddr_o,
+    `ifdef DebugMode
         input [31:0] inst_i,
         output reg [31:0] inst_o,
     `endif
@@ -9,6 +7,7 @@ module DU_Register_way0(
     input reset_n,
     input [4:0] rdAddr_i,
     input rdWriteEnable_i,
+    input [31:0] instAddr_i,
     input [63:0] rs1ReadData_i,
     input [63:0] rs2ReadData_i,
     input [63:0] imm_i,
@@ -21,6 +20,7 @@ module DU_Register_way0(
     input ready_i,
     output reg [4:0] rdAddr_o,
     output reg rdWriteEnable_o,
+    output reg [31:0] instAddr_o,
     output reg [63:0] rs1ReadData_o,
     output reg [63:0] rs2ReadData_o,
     output reg [63:0] imm_o,
@@ -48,6 +48,7 @@ module DU_Register_way0(
         if(~reset_n) begin
             rdAddr_o <= 5'b0;
             rdWriteEnable_o <= 1'b0;
+            instAddr_o <= 32'b0;
             rs1ReadData_o <= 64'b0;
             rs2ReadData_o <= 64'b0;
             imm_o <= 64'b0;
@@ -59,6 +60,7 @@ module DU_Register_way0(
         end else if(valid_i && ready_o) begin
             rdAddr_o <= rdAddr_i;
             rdWriteEnable_o <= rdWriteEnable_i;
+            instAddr_o <= instAddr_i; 
             rs1ReadData_o <= rs1ReadData_i;
             rs2ReadData_o <= rs2ReadData_i;
             imm_o <= imm_i;
@@ -70,13 +72,11 @@ module DU_Register_way0(
         end
     end
 
-    `ifdef TestMode
+    `ifdef DebugMode
         always @(posedge clk or negedge reset_n) begin
             if(~reset_n) begin
-                instAddr_o <= 32'b0;
                 inst_o <= 32'b0;
             end else if(valid_i && ready_o) begin
-                instAddr_o <= instAddr_i;
                 inst_o <= inst_i;
             end
         end

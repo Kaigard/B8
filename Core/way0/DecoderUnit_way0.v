@@ -1,13 +1,12 @@
 module DecoderUnit_way0(
-    `ifdef TestMode 
-        input [31:0] instAddr_i,
-        output [31:0] instAddr_o,
+    `ifdef DebugMode 
         output [31:0] inst_o,
     `endif
     // From IFU
     input valid_i,
     input [1:0] way0_pID_i,
     input [31:0] inst_i,
+    input [31:0] instAddr_i,
     input [63:0] rs1ReadData_i,
     input [63:0] rs2ReadData_i,
     // From DU Register
@@ -20,6 +19,7 @@ module DecoderUnit_way0(
     // To Ex
     output [4:0] rdAddr_o,
     output rdWriteEnable_o,
+    output [31:0] instAddr_o,
     output [63:0] rs1ReadData_o,
     output [63:0] rs2ReadData_o,
     output [63:0] imm_o,
@@ -35,11 +35,11 @@ module DecoderUnit_way0(
     output [1:0] way0_pID_o
 );
 
-    `ifdef TestMode 
-        assign instAddr_o = instAddr_i;
+    `ifdef DebugMode 
         assign inst_o = inst_i;
     `endif
 
+    assign instAddr_o = instAddr_i;
     assign rs1ReadData_o = rs1ReadData_i;
     assign rs2ReadData_o = rs2ReadData_i;
     assign valid_o = valid_i;
