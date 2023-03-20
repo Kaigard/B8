@@ -1,25 +1,25 @@
 module BnineCore_way0 (
-    input clk,
-    input reset_n,
-    input way0_dataOk_i,
-    input [31:0] way0_inst_fetch_i,
+    input logic clk,
+    input logic reset_n,
+    input logic way0_dataOk_i,
+    input logic [31:0] way0_inst_fetch_i,
     // From RegFile
-    input [63:0] way0_rs1ReadData_i,
-    input [63:0] way0_rs2ReadData_i,
+    input logic [63:0] way0_rs1ReadData_i,
+    input logic [63:0] way0_rs2ReadData_i,
     // To I-Cache
-    output way0_request_o,
-    output [31:0] way0_instAddr_fetch_o,
+    output logic way0_request_o,
+    output logic [31:0] way0_instAddr_fetch_o,
     // To RegFile
-    output way0_rs1ReadEnable_o,
-    output way0_rs2ReadEnable_o,
-    output [4:0] way0_rs1Addr_o,
-    output [4:0] way0_rs2Addr_o,
+    output logic way0_rs1ReadEnable_o,
+    output logic way0_rs2ReadEnable_o,
+    output logic [4:0] way0_rs1Addr_o,
+    output logic [4:0] way0_rs2Addr_o,
 
 
     // For Test
-    input jumpFlag_i,
-    input [31:0] jumpAddr_i,
-    input ready_test
+    input logic jumpFlag_i,
+    input logic [31:0] jumpAddr_i,
+    input logic ready_test
 );
 
     // PCU_way0
@@ -77,13 +77,16 @@ module BnineCore_way0 (
     wire EU_way0_ready_o;
     wire [1:0] EU_way0_pID_i;
 
+    wire EU_way0_jumpFlag_o;
+    wire [31:0] EU_way0_jumpAddr_o;
+
 
     PCU_way0 B_PCU_way0(
         .clk(clk),
         .reset_n(reset_n),
         .ready_i(PCU_way0_ready_i),
-        .jumpFlag_i(jumpFlag_i),
-        .jumpAddr_i(jumpAddr_i),
+        .jumpFlag_i(EU_way0_jumpFlag_o),
+        .jumpAddr_i(EU_way0_jumpAddr_o),
         .valid_o(PCU_way0_valid_o),
         .instAddr_o(PCU_way0_instAddr_o)
     );
@@ -99,9 +102,7 @@ module BnineCore_way0 (
         .reset_n(reset_n),
         .valid_i(PCU_way0_valid_o),
         .ready_i(IFU_way0_ready_i),
-        .jumpFlag_i(jumpFlag_i),
         .dataOk_i(way0_dataOk_i),
-        .jumpAddr_i(jumpAddr_i),
         .instAddr_i(PCU_way0_instAddr_o),
         .inst_fetch_i(way0_inst_fetch_i),
         .ready_o(IFU_way0_ready_o),
@@ -205,6 +206,8 @@ module BnineCore_way0 (
         .valid_i(EU_way0_valid_i),
         .ready_i(ready_test),
 
+        .jumpFlag_o(EU_way0_jumpFlag_o),
+        .jumpAddr_o(EU_way0_jumpAddr_o),
         .ready_o(EU_way0_ready_o)
     );
 

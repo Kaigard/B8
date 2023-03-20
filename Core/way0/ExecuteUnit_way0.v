@@ -1,24 +1,26 @@
 module ExecuteUnit_way0(
     `ifdef DebugMode
-        output [31:0] instAddr_o,
-        input [31:0] inst_i,
-        output [31:0] inst_o,
+        output logic [31:0] instAddr_o,
+        input logic [31:0] inst_i,
+        output logic [31:0] inst_o,
     `endif
-    input [4:0] rdAddr_i,
-    input rdWriteEnable_i,
-    input [31:0] instAddr_i,
-    input [63:0] rs1ReadData_i,
-    input [63:0] rs2ReadData_i,
-    input [63:0] imm_i,
-    input [6:0] opCode_i,
-    input [2:0] funct3_i,
-    input [6:0] funct7_i,
-    input [5:0] shamt_i,
-    input [1:0] way0_pID_i,
-    input valid_i,
-    input ready_i,
+    input logic [4:0] rdAddr_i,
+    input logic rdWriteEnable_i,
+    input logic [31:0] instAddr_i,
+    input logic [63:0] rs1ReadData_i,
+    input logic [63:0] rs2ReadData_i,
+    input logic [63:0] imm_i,
+    input logic [6:0] opCode_i,
+    input logic [2:0] funct3_i,
+    input logic [6:0] funct7_i,
+    input logic [5:0] shamt_i,
+    input logic [1:0] way0_pID_i,
+    input logic valid_i,
+    input logic ready_i,
 
-    output ready_o
+    output logic jumpFlag_o,
+    output logic [31:0] jumpAddr_o,
+    output logic ready_o
 );
 
     `ifdef DebugMode
@@ -59,11 +61,11 @@ module ExecuteUnit_way0(
     `endif
 
     //ALU
-    //Addi       CLA      
+    //Addi           
     wire [63:0] ImmAddRs1ReadData = imm_i + rs1ReadData_i;
-    //Add       CLA      
+    //Add            
     wire [63:0] Rs1ReadDataAddRs2ReadData = rs1ReadData_i + rs2ReadData_i;
-    //Sub       3_2                  CLA      
+    //Sub                              
     wire [63:0] Rs1ReadDataSubRs2ReadData = rs1ReadData_i + (~rs2ReadData_i + 1);
     //And
     wire [63:0] Rs1ReadDataAndRs2ReadData = rs1ReadData_i & rs2ReadData_i;
@@ -209,9 +211,9 @@ module ExecuteUnit_way0(
     //RV32I
     7'b0010011, Funct3_RV32I_I_TypeOut,
     7'b0110011, Funct7_RV32I_R_TypeOut,
-    7'b0010111, (InstAddrIn + (imm_i << 12)),                                                    //Auipc
-    7'b1101111, (InstAddrIn + 4),                                                                //Jar
-    7'b1100111, (InstAddrIn + 4),                                                                //Jalr
+    7'b0010111, (instAddr_i + (imm_i << 12)),                                                    //Auipc
+    7'b1101111, (instAddr_i + 4),                                                                //Jar
+    7'b1100111, (instAddr_i + 4),                                                                //Jalr
     7'b0110111, {{32{ImmShift[31]}} ,ImmShift[31:0]},                                            //Lui 
     //RV64I
     7'b0011011, Funct3_RV64I_I_TypeOut,
@@ -303,7 +305,7 @@ module ExecuteUnit_way0(
         });
 
         `ifdef DPI-C 
-            import "DPI-C" function void SystemBreak (input int Ebreak);
+            import "DPI-C" function void SystemBreak (input wire int Ebreak);
             always @( * ) begin
                 if(opCode_i == 7'b1110011 && RaiseException == RaiseException_Ebreak) 
                 SystemBreak(1);
@@ -316,7 +318,7 @@ module ExecuteUnit_way0(
     //Ebrack or Ecall
     wire BranchFlag;
     //Jump
-    MuxKeyWithDefault #(3, 7, 1) JumpFlag_mux (JumpFlagToCtrl, opCode_i, 1'b0, {
+    MuxKeyWithDefault #(3, 7, 1) JumpFlag_mux (jumpFlag_o, opCode_i, 1'b0, {
     //Jar
     7'b1101111, 1'b1,
     //Jalr
@@ -404,13 +406,13 @@ module ExecuteUnit_way0(
         });
     */
 
-    MuxKeyWithDefault #(3, 7, 64) JumpAddr (JumpAddrToCtrl, opCode_i, 64'b0, {
+    MuxKeyWithDefault #(3, 7, 64) JumpAddr (jumpAddr_o, opCode_i, 64'b0, {
     //Jar
-    7'b1101111, (InstAddrIn + imm_i),
+    7'b1101111, (instAddr_i + imm_i),
     //Jalr
     7'b1100111, ((rs1ReadData_i + imm_i) & ~1),
     //Beq   Bge   Bgeu   Blt   Bltu   Bne
-    7'b1100011, (InstAddrIn + imm_i)
+    7'b1100011, (instAddr_i + imm_i)
     });
 
 endmodule

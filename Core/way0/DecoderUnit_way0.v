@@ -1,38 +1,38 @@
 module DecoderUnit_way0(
     `ifdef DebugMode 
-        output [31:0] inst_o,
+        output logic [31:0] inst_o,
     `endif
     // From IFU
-    input valid_i,
-    input [1:0] way0_pID_i,
-    input [31:0] inst_i,
-    input [31:0] instAddr_i,
-    input [63:0] rs1ReadData_i,
-    input [63:0] rs2ReadData_i,
+    input logic valid_i,
+    input logic [1:0] way0_pID_i,
+    input logic [31:0] inst_i,
+    input logic [31:0] instAddr_i,
+    input logic [63:0] rs1ReadData_i,
+    input logic [63:0] rs2ReadData_i,
     // From DU Register
-    input ready_i,
+    input logic ready_i,
     // To Regfile
-    output [4:0] way0_rs1Addr_o,
-    output [4:0] way0_rs2Addr_o,
-    output way0_rs1ReadEnable_o,
-    output way0_rs2ReadEnable_o,
+    output logic [4:0] way0_rs1Addr_o,
+    output logic [4:0] way0_rs2Addr_o,
+    output logic way0_rs1ReadEnable_o,
+    output logic way0_rs2ReadEnable_o,
     // To Ex
-    output [4:0] rdAddr_o,
-    output rdWriteEnable_o,
-    output [31:0] instAddr_o,
-    output [63:0] rs1ReadData_o,
-    output [63:0] rs2ReadData_o,
-    output [63:0] imm_o,
-    output [6:0] opCode_o,
-    output [2:0] funct3_o,
-    output [6:0] funct7_o,
-    output [5:0] shamt_o,
+    output logic [4:0] rdAddr_o,
+    output logic rdWriteEnable_o,
+    output logic [31:0] instAddr_o,
+    output logic [63:0] rs1ReadData_o,
+    output logic [63:0] rs2ReadData_o,
+    output logic [63:0] imm_o,
+    output logic [6:0] opCode_o,
+    output logic [2:0] funct3_o,
+    output logic [6:0] funct7_o,
+    output logic [5:0] shamt_o,
     // To DU Register
-    output valid_o,
+    output logic valid_o,
     // To IFU
-    output ready_o,
+    output logic ready_o,
     // To DU Register && IFU
-    output [1:0] way0_pID_o
+    output logic [1:0] way0_pID_o
 );
 
     `ifdef DebugMode 

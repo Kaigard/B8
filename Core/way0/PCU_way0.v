@@ -1,16 +1,16 @@
 
 module PCU_way0 (
-    input clk,
-    input reset_n,
-    input ready_i,
-    input jumpFlag_i,
-    input [31:0] jumpAddr_i,
-    output reg valid_o,
-    output reg [31:0] instAddr_o
+    input logic clk,
+    input logic reset_n,
+    input logic ready_i,
+    input logic jumpFlag_i,
+    input logic [31:0] jumpAddr_i,
+    output logic valid_o,
+    output logic [31:0] instAddr_o
 );
 
-    wire WFull;
-    wire [31:0] jumpAddr_buffer;
+    logic WFull;
+    logic [31:0] jumpAddr_buffer;
 
     DataBuffer #(.DataWidth(32)) 
     PCU_DataBuffer_way0
@@ -24,7 +24,7 @@ module PCU_way0 (
         .RInc(WFull && ready_i)
     );
 
-    always @(posedge clk or negedge reset_n) begin
+    always_ff @(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
             instAddr_o <= 32'b0;
             valid_o <= 1'b1;

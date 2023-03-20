@@ -1,20 +1,18 @@
 module InstFetchUnit_way0 (
-    input clk,
-    input reset_n,
-    input valid_i,
-    input ready_i,
-    input jumpFlag_i,
-    input dataOk_i,
-    input [31:0] jumpAddr_i,
-    input [31:0] instAddr_i,
-    input [31:0] inst_fetch_i,
-    output ready_o,
-    output request_o,
-    output reg valid_o,
-    output [31:0] instAddr_fetch_o,
-    output reg [31:0] inst_o,
-    output reg [31:0] instAddr_o,
-    output reg [1:0] way0_pID_o
+    input logic clk,
+    input logic reset_n,
+    input logic valid_i,
+    input logic ready_i,
+    input logic dataOk_i,
+    input logic [31:0] instAddr_i,
+    input logic [31:0] inst_fetch_i,
+    output logic ready_o,
+    output logic request_o,
+    output logic valid_o,
+    output logic [31:0] instAddr_fetch_o,
+    output logic [31:0] inst_o,
+    output logic [31:0] instAddr_o,
+    output logic [1:0] way0_pID_o
 );
     
     wire WFull;
@@ -50,7 +48,7 @@ module InstFetchUnit_way0 (
         .RInc(WFull && ready_i)
     );
 
-    always @(posedge clk or negedge reset_n) begin
+    always_ff @(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
             inst_o <= 32'b0;
             instAddr_o <= 32'b0;
