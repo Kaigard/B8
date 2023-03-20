@@ -4,8 +4,8 @@ module ExecuteUnit_way0(
         input logic [31:0] inst_i,
         output logic [31:0] inst_o,
     `endif
-    input logic [4:0] rdAddr_i,
     input logic rdWriteEnable_i,
+    input logic [4:0] rdAddr_i,
     input logic [31:0] instAddr_i,
     input logic [63:0] rs1ReadData_i,
     input logic [63:0] rs2ReadData_i,
@@ -14,13 +14,17 @@ module ExecuteUnit_way0(
     input logic [2:0] funct3_i,
     input logic [6:0] funct7_i,
     input logic [5:0] shamt_i,
-    input logic [1:0] way0_pID_i,
     input logic valid_i,
     input logic ready_i,
-
+    input logic [1:0] way0_pID_i,
+    output logic rdWriteEnable_o,
+    output logic [4:0] rdAddr_o,
+    output logic [63:0] rdData_o,
     output logic jumpFlag_o,
     output logic [31:0] jumpAddr_o,
-    output logic ready_o
+    output logic valid_o,
+    output logic ready_o,
+    output logic [1:0] way0_pID_o
 );
 
     `ifdef DebugMode
@@ -28,7 +32,11 @@ module ExecuteUnit_way0(
         assign inst_o = inst_i;
     `endif
 
+    assign valid_o = valid_i;
     assign ready_o = ready_i;
+    assign way0_pID_o = way0_pID_i;
+    assign rdWriteEnable_o = rdWriteEnable_i;
+    assign rdAddr_o = rdAddr_i;
 
     wire [63:0] Funct3_RV32I_I_TypeOut;
     wire [63:0] Shift_RV32I_Right;
@@ -291,7 +299,7 @@ module ExecuteUnit_way0(
     //RV32I   RV32M                                                      
     assign RdWriteDataOut = RdWriteDataOutRVI | RdWriteDataOutRVM | CsrReadDataIn;
     */
-    assign RdWriteDataOut = RdWriteDataOutRVI;
+    assign rdData_o = RdWriteDataOutRVI;
 
 
     //DPI-C

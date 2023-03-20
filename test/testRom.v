@@ -1,10 +1,10 @@
 module testRom (
-    input clk,
-    input reset_n,
-    input request_i,
-    input [31:0] instAddr_i,
-    output [31:0] inst_o,
-    output dataOk_o
+    input logic clk,
+    input logic reset_n,
+    input logic request_i,
+    input logic [31:0] instAddr_i,
+    output logic [31:0] inst_o,
+    output logic dataOk_o
 );
 
     reg [7:0] romReg [10'h3FF * 4 : 0];
@@ -26,7 +26,6 @@ module testRom (
         end
     end
     */
- 
     
     assign dataOk_o = 1'b1;
     assign inst_o = {romReg[instAddr_i], romReg[instAddr_i + 1], romReg[instAddr_i + 2], romReg[instAddr_i + 3]};

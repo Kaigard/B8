@@ -61,6 +61,8 @@ module BnineCore_way0 (
     // EU_way0
     `ifdef DebugMode
         wire [31:0] EU_way0_inst_i;
+        wire [31:0] EU_way0_inst_o;
+        wire [31:0] EU_way0_instAddr_o;
     `endif
 
     wire [4:0] EU_way0_rdAddr_i;
@@ -74,11 +76,21 @@ module BnineCore_way0 (
     wire [6:0] EU_way0_funct7_i;
     wire [5:0] EU_way0_shamt_i;
     wire EU_way0_valid_i;
-    wire EU_way0_ready_o;
+    wire EU_way0_ready_i;
     wire [1:0] EU_way0_pID_i;
+
+    wire EU_way0_rdWriteEnable_o;
+    wire [4:0] EU_way0_rdAddr_o;
+    wire [63:0] EU_way0_rdData_o;
 
     wire EU_way0_jumpFlag_o;
     wire [31:0] EU_way0_jumpAddr_o;
+
+    wire [1:0] EU_way0_pID_o;
+    wire EU_way0_valid_o;
+    wire EU_way0_ready_o;
+
+    // 
 
 
     PCU_way0 B_PCU_way0(
@@ -188,9 +200,9 @@ module BnineCore_way0 (
 
     ExecuteUnit_way0 B_ExecuteUnit_way0(
         `ifdef DebugMode
-            .instAddr_o(),
+            .instAddr_o(EU_way0_instAddr_o),
             .inst_i(EU_way0_inst_i),
-            .inst_o(),
+            .inst_o(EU_way0_inst_o),
         `endif
         .rdAddr_i(EU_way0_rdAddr_i),
         .rdWriteEnable_i(EU_way0_rdWriteEnable_i),
@@ -204,11 +216,41 @@ module BnineCore_way0 (
         .shamt_i(EU_way0_shamt_i),
         .way0_pID_i(EU_way0_pID_i),
         .valid_i(EU_way0_valid_i),
-        .ready_i(ready_test),
+        .ready_i(EU_way0_ready_i),
 
+        .rdWriteEnable_o(EU_way0_rdWriteEnable_o),
+        .rdAddr_o(EU_way0_rdAddr_o),
+        .rdData_o(EU_way0_rdData_o),
         .jumpFlag_o(EU_way0_jumpFlag_o),
         .jumpAddr_o(EU_way0_jumpAddr_o),
-        .ready_o(EU_way0_ready_o)
+        .valid_o(EU_way0_valid_o),
+        .ready_o(EU_way0_ready_o),
+        .way0_pID_o(EU_way0_pID_o)
+    );
+
+    EU_Register_way0 B_EU_Register_way0(
+        `ifdef DebugMode
+            .instAddr_i(EU_way0_instAddr_o),
+            .inst_i(EU_way0_inst_o),
+            .instAddr_o(),
+            .inst_o(),
+        `endif
+
+        .clk(clk),
+        .reset_n(reset_n),
+        .rdWriteEnable_i(EU_way0_rdWriteEnable_o),
+        .rdAddr_i(EU_way0_rdAddr_o),
+        .rdData_i(EU_way0_rdData_o),
+        .valid_i(EU_way0_valid_o),
+        .ready_i(ready_test),
+        .way0_pID_i(EU_way0_pID_o),
+        
+        .rdWriteEnable_o(),
+        .rdAddr_o(),
+        .rdData_o(),
+        .valid_o(),
+        .ready_o(EU_way0_ready_i),
+        .way0_pID_o()
     );
 
 endmodule
