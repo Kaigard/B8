@@ -1,8 +1,8 @@
 module PCU_readyControler_way0(
-    input logic readyNextStep_i,
+    input logic ready_IFU_i,
     output logic ready_o
 );
 
-    assign ready_o = readyNextStep_i;
+    assign ready_o = ready_IFU_i;
 
 endmodule

@@ -17,14 +17,21 @@ module ExecuteUnit_way0(
     input logic valid_i,
     input logic ready_i,
     input logic [1:0] way0_pID_i,
+    // To FU
     output logic rdWriteEnable_o,
     output logic [4:0] rdAddr_o,
     output logic [63:0] rdData_o,
-    output logic jumpFlag_o,
-    output logic [31:0] jumpAddr_o,
     output logic valid_o,
     output logic ready_o,
-    output logic [1:0] way0_pID_o
+    output logic [1:0] way0_pID_o,
+    output logic [2:0] funct3_o,
+    output logic [31:0] readAddr_o,
+    output logic [31:0] writeAddr_o,
+    output logic [63:0] writeData_o,
+    output logic [3:0] writeMask_o,
+    // To PCU
+    output logic jumpFlag_o,
+    output logic [31:0] jumpAddr_o
 );
 
     `ifdef DebugMode
@@ -37,6 +44,12 @@ module ExecuteUnit_way0(
     assign way0_pID_o = way0_pID_i;
     assign rdWriteEnable_o = rdWriteEnable_i;
     assign rdAddr_o = rdAddr_i;
+    assign funct3_o = |readAddr_o ? funct3_i : 3'b0;
+
+    wire [31:0] LoadTypeAddr;
+    wire [31:0] StoreTypeAddr;
+    wire [63:0] StoreTypeData;
+    wire [3:0] StoreTypeMask;
 
     wire [63:0] Funct3_RV32I_I_TypeOut;
     wire [63:0] Shift_RV32I_Right;
@@ -107,22 +120,22 @@ module ExecuteUnit_way0(
     //RV32I
     //I                  
     MuxKeyWithDefault #(7, 3, 64) Funct3_RV32_I_Type (Funct3_RV32I_I_TypeOut, funct3_i, 64'b0, {
-        //Addi
-        3'b000, ImmAddRs1ReadData,
-        //Andi
-        3'b111, Rs1ReadDataAndImm,
-        //Ori
-        3'b110, Rs1ReadDataOrImm,
-        //Slti
-        3'b010, (((rs1ReadData_i[63] == 1'b1) && (imm_i[63] == 1'b0)) ? 64'b1 :
-                ((rs1ReadData_i[63] == 1'b0) && (imm_i[63] == 1'b1)) ? 64'b0 :
-                (Rs1ReadDataAddRs2ReadData[63] == rs1ReadData_i[63]) ? 64'b1 : 64'b0),
-        //Sltiu
-        3'b011, ((rs1ReadData_i < imm_i) ? 64'b1 : 64'b0),
-        //Slli
-        3'b001, Shift_RV32I_Left,
-        //Srli or srai
-        3'b101, Shift_RV32I_Right
+    //Addi
+    3'b000, ImmAddRs1ReadData,
+    //Andi
+    3'b111, Rs1ReadDataAndImm,
+    //Ori
+    3'b110, Rs1ReadDataOrImm,
+    //Slti
+    3'b010, (((rs1ReadData_i[63] == 1'b1) && (imm_i[63] == 1'b0)) ? 64'b1 :
+            ((rs1ReadData_i[63] == 1'b0) && (imm_i[63] == 1'b1)) ? 64'b0 :
+            (Rs1ReadDataAddRs2ReadData[63] == rs1ReadData_i[63]) ? 64'b1 : 64'b0),
+    //Sltiu
+    3'b011, ((rs1ReadData_i < imm_i) ? 64'b1 : 64'b0),
+    //Slli
+    3'b001, Shift_RV32I_Left,
+    //Srli or srai
+    3'b101, Shift_RV32I_Right
     });
         //                                    Funct3            Funct7          
         MuxKeyWithDefault #(2, 6, 64) Shift_RV32I_Right_mux (Shift_RV32I_Right, funct7_i[6:1], 64'b0, {
@@ -135,10 +148,10 @@ module ExecuteUnit_way0(
 
     //R                  
     MuxKeyWithDefault #(2, 7, 64) Funct7_RV32I_R_Type (Funct7_RV32I_R_TypeOut, funct7_i, 64'b0, {
-        //Add or Xor or Or or And or Slt or Sltu or Sll or Srl
-        7'b0000000, Funct3_RV32I_R_Type_ZeroOut,
-        //Sub or Sra
-        7'b0100000, Funct3_RV32I_R_Type_OneOut
+    //Add or Xor or Or or And or Slt or Sltu or Sll or Srl
+    7'b0000000, Funct3_RV32I_R_Type_ZeroOut,
+    //Sub or Sra
+    7'b0100000, Funct3_RV32I_R_Type_OneOut
     }); 
         //Funct7   7'b0000000
         MuxKeyWithDefault #(8, 3, 64) Funct3_RV32I_R_Type_Zero (Funct3_RV32I_R_Type_ZeroOut, funct3_i, 64'b0, {
@@ -172,12 +185,12 @@ module ExecuteUnit_way0(
     //RV64I
     //I                  
     MuxKeyWithDefault #(3, 3, 64) Funct3_RV64I_I_Type (Funct3_RV64I_I_TypeOut, funct3_i, 64'b0, {
-        //Addiw
-        3'b000, {{32{ImmAddRs1ReadData[31]}}, ImmAddRs1ReadData[31:0]},
-        //Slliw
-        3'b001, {{32{Shift_RV64I_Left[31]}}, Shift_RV64I_Left[31:0]},
-        //Srliw or Sraiw
-        3'b101, {{32{Shift_RV64I_Right[31]}}, Shift_RV64I_Right[31:0]}
+    //Addiw
+    3'b000, {{32{ImmAddRs1ReadData[31]}}, ImmAddRs1ReadData[31:0]},
+    //Slliw
+    3'b001, {{32{Shift_RV64I_Left[31]}}, Shift_RV64I_Left[31:0]},
+    //Srliw or Sraiw
+    3'b101, {{32{Shift_RV64I_Right[31]}}, Shift_RV64I_Right[31:0]}
     });
         //                                    Funct3            Funct7          
         MuxKeyWithDefault #(2, 7, 64) Shift_RV64I_Right_mux (Shift_RV64I_Right, funct7_i, 64'b0, {
@@ -192,10 +205,10 @@ module ExecuteUnit_way0(
 
     //R                   
     MuxKeyWithDefault #(2, 7, 64) Funct7_RV64I_R_Type (Funct7_RV64I_R_TypeOut, funct7_i, 64'b0, {
-        //Addw or Sllw or Srlw
-        7'b0000000, Funct3_RV64I_R_Type_ZeroOut,
-        //Subw or Sraw
-        7'b0100000, Funct3_RV64I_R_Type_OneOut
+    //Addw or Sllw or Srlw
+    7'b0000000, Funct3_RV64I_R_Type_ZeroOut,
+    //Subw or Sraw
+    7'b0100000, Funct3_RV64I_R_Type_OneOut
     });
         MuxKeyWithDefault #(3, 3, 64) Funct3_RV64I_R_Type_Zero (Funct3_RV64I_R_Type_ZeroOut, funct3_i, 64'b0, {
         //Addw
@@ -422,5 +435,74 @@ module ExecuteUnit_way0(
     //Beq   Bge   Bgeu   Blt   Bltu   Bne
     7'b1100011, (instAddr_i + imm_i)
     });
+    
+
+    //Store && Load
+    MuxKeyWithDefault #(1, 7, 32) MemRAddr_mux (readAddr_o, opCode_i, 32'b0, {
+    //Load
+    7'b0000011, LoadTypeAddr
+    });
+        MuxKeyWithDefault #(7, 3, 32) LoadTypeAddr_mux (LoadTypeAddr, funct3_i, 32'b0, {
+        //Ld
+        3'b011, ImmAddRs1ReadData[31:0],
+        //Lw
+        3'b010, ImmAddRs1ReadData[31:0],
+        //Lh
+        3'b001, ImmAddRs1ReadData[31:0],
+        //Lb
+        3'b000, ImmAddRs1ReadData[31:0],
+        //Lbu
+        3'b100, ImmAddRs1ReadData[31:0],
+        //Lhu
+        3'b101, ImmAddRs1ReadData[31:0],
+        //Lwu
+        3'b110, ImmAddRs1ReadData[31:0]
+        });
+
+    MuxKeyWithDefault #(1, 7, 32) MemWAddr_mux (writeAddr_o, opCode_i, 32'b0, {
+    //Store
+    7'b0100011, StoreTypeAddr
+    });
+        MuxKeyWithDefault #(4, 3, 32) StoreTypeAddr_mux (StoreTypeAddr, funct3_i, 32'b0, {
+        //Sd
+        3'b011, ImmAddRs1ReadData[31:0], 
+        //Sw
+        3'b010, ImmAddRs1ReadData[31:0],
+        //Sh
+        3'b001, ImmAddRs1ReadData[31:0],
+        //Sb
+        3'b000, ImmAddRs1ReadData[31:0]
+        });
+
+    MuxKeyWithDefault #(1, 7, 64) MemWData_mux (writeData_o, opCode_i, 64'b0, {
+    //Store
+    7'b0100011, StoreTypeData
+    });
+        MuxKeyWithDefault #(4, 3, 64) StoreTypeData_mux (StoreTypeData, funct3_i, 64'b0, {
+        //Sd
+        3'b011, rs2ReadData_i,
+        //Sw
+        3'b010, rs2ReadData_i,
+        //Sh
+        3'b001, rs2ReadData_i,
+        //Sb
+        3'b000, rs2ReadData_i
+        });
+
+    MuxKeyWithDefault #(1, 7, 4) MemMask_mux (writeMask_o, opCode_i, 4'b0, {
+    //Store
+    7'b0100011, StoreTypeMask
+    });
+        //Mask output
+        MuxKeyWithDefault #(4, 3, 4) StoreTypeMask_mux (StoreTypeMask, funct3_i, 4'b0, {
+        //Sd
+        3'b011, 4'b1000,
+        //Sw
+        3'b010, 4'b0100,
+        //Sh
+        3'b001, 4'b0010,
+        //Sb
+        3'b000, 4'b0001
+        });
 
 endmodule

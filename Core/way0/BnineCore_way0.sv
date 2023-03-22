@@ -15,7 +15,6 @@ module BnineCore_way0 (
     output logic [4:0] way0_rs1Addr_o,
     output logic [4:0] way0_rs2Addr_o,
 
-
     // For Test
     input logic jumpFlag_i,
     input logic [31:0] jumpAddr_i,
@@ -90,37 +89,76 @@ module BnineCore_way0 (
     wire EU_way0_valid_o;
     wire EU_way0_ready_o;
 
-    // 
+    wire [2:0] EU_way0_funct3_o;
+    wire [31:0] EU_way0_readAddr_o;
+    wire [31:0] EU_way0_writeAddr_o;
+    wire [63:0] EU_way0_writeData_o;
+    wire [3:0] EU_way0_writeMask_o;
 
+    // FU way0
+    `ifdef DebugMode
+        wire [31:0] FU_way0_instAddr_i;
+        wire [31:0] FU_way0_inst_i;
+        wire [31:0] FU_way0_instAddr_o;
+        wire [31:0] FU_way0_inst_o;
+    `endif 
+    wire FU_way0_rdWriteEnable_i;
+    wire [4:0] FU_way0_rdAddr_i;
+    wire [63:0] FU_way0_rdData_i;
+    wire FU_way0_valid_i;
+    wire FU_way0_ready_i;
+    wire [1:0] FU_way0_pID_i;
+    wire FU_way0_rdWriteEnable_o;
+    wire [4:0] FU_way0_rdAddr_o;
+    wire [63:0] FU_way0_rdData_o;
+    wire FU_way0_valid_o;
+    wire FU_way0_ready_o;
+    wire [1:0] FU_way0_pID_o;
+    wire [2:0] FU_way0_funct3_i;
+    
+    // WBU way0
+    `ifdef DebugMode
+        wire [31:0] WBU_way0_instAddr_i;
+        wire [31:0] WBU_way0_inst_i;
+        wire [31:0] WBU_way0_instAddr_o;
+        wire [31:0] WBU_way0_inst_o;
+    `endif 
+    wire WBU_way0_rdWriteEnable_i;
+    wire [4:0] WBU_way0_rdAddr_i;
+    wire [63:0] WBU_way0_rdData_i;
+    wire WBU_way0_valid_i;
+    wire [1:0] WBU_way0_pID_i;
+    wire WBU_way0_ready_o;
 
     PCU_way0 B_PCU_way0(
         .clk(clk),
         .reset_n(reset_n),
         .ready_i(PCU_way0_ready_i),
+        .dataOk_i(way0_dataOk_i),
         .jumpFlag_i(EU_way0_jumpFlag_o),
         .jumpAddr_i(EU_way0_jumpAddr_o),
+        .request_o(way0_request_o),
         .valid_o(PCU_way0_valid_o),
-        .instAddr_o(PCU_way0_instAddr_o)
+        .instAddr_o(way0_instAddr_fetch_o)
     );
 
     PCU_readyControler_way0 B_PCU_readyControler_way0(
-        .readyNextStep_i(IFU_way0_ready_o),
+        .ready_IFU_i(IFU_way0_ready_o),
         .ready_o(PCU_way0_ready_i)
     );
 
     InstFetchUnit_way0 B_InstFetchUnit_way0(
-        //Test Port
+        // Test Port
         .clk(clk),
         .reset_n(reset_n),
         .valid_i(PCU_way0_valid_o),
         .ready_i(IFU_way0_ready_i),
-        .dataOk_i(way0_dataOk_i),
-        .instAddr_i(PCU_way0_instAddr_o),
+        // RAM
+        .instAddr_i(way0_instAddr_fetch_o),
         .inst_fetch_i(way0_inst_fetch_i),
+        // To DU
         .ready_o(IFU_way0_ready_o),
-        .request_o(way0_request_o),
         .valid_o(IFU_way0_valid_o),
-        .instAddr_fetch_o(way0_instAddr_fetch_o),
         .inst_o(IFU_way0_inst_o),
         .instAddr_o(IFU_way0_instAddr_o),
         .way0_pID_o(IFU_way0_pID_o)
@@ -163,7 +201,7 @@ module BnineCore_way0 (
         .way0_pID_o(DU_way0_pID_o)
     );
 
-    DU_Register_way0 B_DU_Register_way0(
+    EU_Register_way0 B_EU_Register_way0(
         `ifdef DebugMode
             .inst_i(DU_way0_inst_o),
             .inst_o(EU_way0_inst_i),
@@ -217,39 +255,156 @@ module BnineCore_way0 (
         .way0_pID_i(EU_way0_pID_i),
         .valid_i(EU_way0_valid_i),
         .ready_i(EU_way0_ready_i),
-
         .rdWriteEnable_o(EU_way0_rdWriteEnable_o),
         .rdAddr_o(EU_way0_rdAddr_o),
         .rdData_o(EU_way0_rdData_o),
-        .jumpFlag_o(EU_way0_jumpFlag_o),
-        .jumpAddr_o(EU_way0_jumpAddr_o),
         .valid_o(EU_way0_valid_o),
         .ready_o(EU_way0_ready_o),
-        .way0_pID_o(EU_way0_pID_o)
+        .way0_pID_o(EU_way0_pID_o),
+        .funct3_o(EU_way0_funct3_o),
+        .readAddr_o(EU_way0_readAddr_o),
+        .writeAddr_o(EU_way0_writeAddr_o),
+        .writeData_o(EU_way0_writeData_o),
+        .writeMask_o(EU_way0_writeMask_o),
+        .jumpFlag_o(EU_way0_jumpFlag_o),
+        .jumpAddr_o(EU_way0_jumpAddr_o)
     );
 
-    EU_Register_way0 B_EU_Register_way0(
+
+    logic [31:0] writeAddr_test;
+    logic [31:0] readAddr_test;
+    logic [63:0] writeData_test;
+    logic [63:0] readData_test;
+    logic [2:0] writeState_test;
+    logic dataOk_test;
+    logic request_test;
+
+    // test
+    reg [64:0] ram_test [1000:0];
+    always @(posedge clk) begin
+        if(|writeAddr_test) begin
+            ram_test[writeAddr_test] <= writeData_test;
+            writeState_test <= 3'b111;
+        end else 
+            writeState_test <= 3'b000;
+    end
+    
+    always @(posedge clk) begin
+        if(|readAddr_test) begin
+            readData_test <= ram_test[readAddr_test];
+            dataOk_test <= 1'b1;
+        end else
+            dataOk_test <= 1'b0;
+    end
+
+
+    FU_Register_way0 B_FU_Register_way0(
         `ifdef DebugMode
             .instAddr_i(EU_way0_instAddr_o),
             .inst_i(EU_way0_inst_o),
-            .instAddr_o(),
-            .inst_o(),
+            .instAddr_o(FU_way0_instAddr_i),
+            .inst_o(FU_way0_inst_i),
         `endif
-
         .clk(clk),
         .reset_n(reset_n),
         .rdWriteEnable_i(EU_way0_rdWriteEnable_o),
         .rdAddr_i(EU_way0_rdAddr_o),
         .rdData_i(EU_way0_rdData_o),
         .valid_i(EU_way0_valid_o),
-        .ready_i(ready_test),
+        .ready_i(FU_way0_ready_o),
         .way0_pID_i(EU_way0_pID_o),
-        
+        .funct3_i(EU_way0_funct3_o),
+        .readAddr_i(EU_way0_readAddr_o),
+        .writeAddr_i(EU_way0_writeAddr_o),
+        .writeData_i(EU_way0_writeData_o),
+        .writeMask_i(EU_way0_writeMask_o),
+        .dataOk_i(dataOk_test),
+        .writeState_i(writeState_test),
+        .rdWriteEnable_o(FU_way0_rdWriteEnable_i),
+        .rdAddr_o(FU_way0_rdAddr_i),
+        .rdData_o(FU_way0_rdData_i),
+        .valid_o(FU_way0_valid_i),
+        .ready_o(EU_way0_ready_i),
+        .way0_pID_o(FU_way0_pID_i),
+        .funct3_o(FU_way0_funct3_i),
+        // To RAM
+        .readAddr_o(readAddr_test),
+        .writeAddr_o(writeAddr_test),
+        .writeData_o(writeData_test),
+        .writeMask_o()
+    );
+
+    FetchUnit_way0 B_FetchUnit_way0(
+        `ifdef DebugMode
+            .instAddr_i(FU_way0_instAddr_i),
+            .inst_i(FU_way0_inst_i),
+            .instAddr_o(FU_way0_instAddr_o),
+            .inst_o(FU_way0_inst_o),
+            .clk(clk),
+            .reset_n(reset_n),
+        `endif 
+        .rdWriteEnable_i(FU_way0_rdWriteEnable_i),
+        .rdAddr_i(FU_way0_rdAddr_i),
+        .rdData_i(FU_way0_rdData_i),
+        .valid_i(FU_way0_valid_i),
+        .ready_i(FU_way0_ready_i),
+        .way0_pID_i(FU_way0_pID_i),
+        .funct3_i(FU_way0_funct3_i),
+        // From RAM
+        .readData_i(readData_test),
+        .dataOk_i(dataOk_test),
+        .writeState_i(writeState_test),
+        .rdWriteEnable_o(FU_way0_rdWriteEnable_o),
+        .rdAddr_o(FU_way0_rdAddr_o),
+        .rdData_o(FU_way0_rdData_o),
+        .valid_o(FU_way0_valid_o),
+        .ready_o(FU_way0_ready_o),
+        .way0_pID_o(FU_way0_pID_o)
+    );
+
+    WBU_Register_way0 B_WBU_Register_way0(
+        `ifdef DebugMode
+            .instAddr_i(FU_way0_instAddr_o),
+            .inst_i(FU_way0_inst_o),
+            .instAddr_o(WBU_way0_instAddr_i),
+            .inst_o(WBU_way0_inst_i),
+        `endif 
+        .clk(clk),
+        .reset_n(reset_n),
+        .rdWriteEnable_i(FU_way0_rdWriteEnable_o),
+        .rdAddr_i(FU_way0_rdAddr_o),
+        .rdData_i(FU_way0_rdData_o),
+        .valid_i(FU_way0_valid_o),
+        .ready_i(WBU_way0_ready_o),
+        .way0_pID_i(FU_way0_pID_o),
+        // .dataOk_i(FU_way0_dataOk_o),
+        // .writeState_i(FU_way0_writeState_o),
+        .rdWriteEnable_o(WBU_way0_rdWriteEnable_i),
+        .rdAddr_o(WBU_way0_rdAddr_i),
+        .rdData_o(WBU_way0_rdData_i),
+        .valid_o(WBU_way0_valid_i),
+        .ready_o(FU_way0_ready_i),
+        .way0_pID_o(WBU_way0_pID_i)
+    );
+
+    WriteBackUnit_way0 B_WriteBackUnit_way0(
+        `ifdef DebugMode
+            .instAddr_i(WBU_way0_instAddr_o),
+            .inst_i(WBU_way0_inst_i),
+            .instAddr_o(),
+            .inst_o(),
+        `endif 
+        .rdWriteEnable_i(WBU_way0_rdWriteEnable_i),
+        .rdAddr_i(WBU_way0_rdAddr_i),
+        .rdData_i(WBU_way0_rdData_i),
+        .valid_i(WBU_way0_valid_i),
+        .ready_i(ready_test),
+        .way0_pID_i(WBU_way0_pID_i),
         .rdWriteEnable_o(),
         .rdAddr_o(),
         .rdData_o(),
         .valid_o(),
-        .ready_o(EU_way0_ready_i),
+        .ready_o(WBU_way0_ready_o),
         .way0_pID_o()
     );
 

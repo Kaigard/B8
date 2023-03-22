@@ -12,7 +12,7 @@ module PCU_way1 (
     wire WFull;
     wire [31:0] jumpAddr_buffer;
 
-    DataBuffer #(.DataWidth(32)) 
+    DataFIFO #(.DataWidth(32)) 
     PCU_DataBuffer_way1
     (
         .Clk(clk),

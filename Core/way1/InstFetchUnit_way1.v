@@ -26,7 +26,7 @@ module InstFetchUnit_way1 (
     assign request_o = valid_i;
     assign instAddr_fetch_o = instAddr_i;
 
-    DataBuffer #(.DataWidth(32))
+    DataFIFO #(.DataWidth(32))
     IFU_Buffer_way1 (
         .Clk(clk),
         .Rst(reset_n),
@@ -95,7 +95,7 @@ module InstFetchUnit_way1 (
         wire WFull_test;
         wire [31:0] instAddr_fetch_buffer;
 
-        DataBuffer #(.DataWidth(32))
+        DataFIFO #(.DataWidth(32))
         IFUAddr_Buffer (
             .Clk(clk),
             .Rst(reset_n),

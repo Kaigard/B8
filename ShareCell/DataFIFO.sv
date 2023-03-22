@@ -9,9 +9,10 @@
  * Copyright (c) 2022 by Kai Zhou zhouk986FIFO_deepth + 1@gmail.com, All Rights Reserved. 
  */
 
-module DataBuffer
+module DataFIFO
 #(
-  parameter DataWidth = 64
+  parameter DataWidth = 64,
+  parameter FIFO_deepth = 1
 )
 (
   input logic Clk,
@@ -23,8 +24,6 @@ module DataBuffer
   input logic RInc,
   output logic REmpty
 );
-  
-  localparam FIFO_deepth = 1;
 
   reg [FIFO_deepth + 1:0] WritePoint;
   reg [FIFO_deepth + 1:0] ReadPoint;
