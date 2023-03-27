@@ -22,14 +22,20 @@ module DataFIFO
   output logic WFull,
   output logic [DataWidth - 1 : 0] RData, 
   input logic RInc,
-  output logic REmpty
+  output logic REmpty,
+  input logic Jump,
+  output logic W_Will_Full
 );
 
   reg [FIFO_deepth + 1:0] WritePoint;
   reg [FIFO_deepth + 1:0] ReadPoint;
   reg [DataWidth - 1:0] BufferMemory [15:0];
-  
+
+  wire [FIFO_deepth + 1:0] WritePointPlus;
+  assign WritePointPlus = WritePoint + 1;
+
   //empty or full
+  assign W_Will_Full = ((WritePointPlus[FIFO_deepth + 1] != ReadPoint[FIFO_deepth + 1]) && (WritePointPlus[FIFO_deepth:0] == ReadPoint[FIFO_deepth:0]));
   assign WFull = ((WritePoint[FIFO_deepth + 1] != ReadPoint[FIFO_deepth + 1]) && (WritePoint[FIFO_deepth:0] == ReadPoint[FIFO_deepth:0]));
   assign REmpty = (WritePoint == ReadPoint); 
 
@@ -38,7 +44,9 @@ module DataFIFO
     if(~Rst) begin
       WritePoint <= 5'b0;
     end else begin
-      if(WInc && ~WFull) begin
+      if(Jump) begin
+        WritePoint <= 5'b0;
+      end else if(WInc) begin
         WritePoint <= WritePoint + 1;
       end
     end
@@ -49,7 +57,9 @@ module DataFIFO
     if(~Rst) begin
       ReadPoint <= 5'b0;
     end else begin
-      if(RInc && ~REmpty) begin
+      if(Jump) begin
+        ReadPoint <= 5'b0;
+      end else if(RInc) begin
         ReadPoint <= ReadPoint + 1;
       end
     end
@@ -57,7 +67,7 @@ module DataFIFO
 
   always_ff @(posedge Clk) begin
     if(WInc) begin
-      BufferMemory[WritePoint[FIFO_deepth:0]] <= WData;
+      BufferMemory[WritePoint[FIFO_deepth + 1:0]] <= WData;
     end
   end
 
@@ -65,7 +75,7 @@ module DataFIFO
     if(~Rst) begin
       RData <= 'b0;
     end else if(RInc) begin
-      RData <= BufferMemory[ReadPoint[FIFO_deepth:0]];
+      RData <= BufferMemory[ReadPoint[FIFO_deepth + 1:0]];
     end
   end
 

@@ -1,5 +1,6 @@
-
-module PCU_way0 (
+module PCU_way0
+#(parameter ModeType = 0)
+ (
     input logic clk,
     input logic reset_n,
     input logic ready_i,
@@ -11,133 +12,56 @@ module PCU_way0 (
     output logic [31:0] instAddr_o
 );
 
-    //************************************************
-    // 数据结构定义
-    //************************************************
-    typedef enum reg[2:0] { 
-        idel,
-        bench,
-        hold,                                                    // 后级阻塞
-        wireMode,                                                  
-        fetch,                                                   // 取值阻塞
-        sramMode                                                    
-    } state;
+    generate
+        if(ModeType == 0) begin : BusMode
 
-    //************************************************
-    // 例化
-    //************************************************
-    state currentState, nextState;
+            reg [31:0] PC;
+            wire WFull;
+            wire REmpty;
 
-    //************************************************
-    // 状态机
-    //************************************************
-    always_ff @(posedge clk or negedge reset_n) begin
-        if(~reset_n) 
-            currentState <= idel;
-        else
-            currentState <= nextState;
-    end
-    always_comb begin
-        case (currentState)
-            idel : begin
-                if(dataOk_i) begin
-                    nextState = wireMode;
-                end else begin
-                    nextState = bench;
-                end
-            end
-            bench : begin
-                if(~ready_i) begin
-                    nextState = hold;
-                end else if(request_o && ~dataOk_i) begin
-                    nextState = fetch;
-                end else begin
-                    nextState = idel;
-                end
-            end
-            hold : begin
-                if(ready_i) begin
-                    nextState = idel;
-                end else begin
-                    nextState = hold;
-                end
-            end
-            wireMode : begin
-                if(~ready_i) begin
-                    nextState = hold;
-                end else if(~request_o) begin
-                    nextState = idel;
-                end else if(~dataOk_i) begin
-                    nextState = fetch;
-                end else begin
-                    nextState = wireMode;
-                end
-            end
-            fetch : begin
-                if(dataOk_i) begin
-                    nextState = sramMode;
-                end else begin
-                    nextState = fetch;
-                end
-            end
-            sramMode : begin
-                if(~ready_i) begin
-                    nextState = hold;
-                end else if(request_o && dataOk_i) begin
-                    nextState = wireMode;
-                end else if(request_o && ~dataOk_i) begin
-                    nextState = fetch;
-                end else begin
-                    nextState = bench;
-                end
-            end
-            default : begin
-                nextState = idel;
-            end
-        endcase
-    end
-    always_ff @(posedge clk or negedge reset_n) begin
-        if(~reset_n) begin
-            instAddr_o <= 32'hffff_fffc;
-            request_o <= 1'b0;
-            valid_o <= 1'b0;
-        end else begin
-            case (currentState)
-                idel : begin
-                    request_o <= 1'b1;
-                    valid_o <= 1'b0;
-                    instAddr_o <= instAddr_o + 4;
-                end
-                bench : begin
+            always_ff @(posedge clk or negedge reset_n) begin
+                if(~reset_n) begin
+                    PC <= 0;
                     request_o <= 1'b0;
+                end else begin
+                    if(ready_i && ~WFull) begin
+                        PC <= PC + 4;
+                        request_o <= 1'b1;
+                    end else begin
+                        PC <= PC;
+                        request_o <= 1'b0;
+                    end
+                end
+            end
+
+            DataBuffer #( .DataWidth(32) )
+            EU_rdAddr_Buffer_way0 ( 
+                .Clk( clk ), 
+                .Rst( reset_n ), 
+                .WData( PC ), 
+                .WInc( dataOk_i ), 
+                .WFull( WFull ), 
+                .RData( instAddr_o ), 
+                .RInc( ready_i ), 
+                .REmpty( REmpty ), 
+                .Jump(  ) 
+            );
+
+            always_ff @(posedge clk or negedge reset_n) begin
+                if(~reset_n) begin
                     valid_o <= 1'b0;
-                    instAddr_o <= instAddr_o;
+                end else begin
+                    if(ready_i) begin
+                        valid_o <= 1'b1;
+                    end else begin
+                        valid_o <= 1'b0;
+                    end
                 end
-                hold : begin
-                    request_o <= 1'b0;
-                    valid_o <= 1'b0;
-                    instAddr_o <= instAddr_o;
-                end
-                wireMode : begin
-                    request_o <= 1'b1;
-                    valid_o <= 1'b1;
-                    instAddr_o <= instAddr_o + 4;
-                end
-                fetch : begin
-                    request_o <= 1'b0;
-                    valid_o <= 1'b0;
-                    instAddr_o <= instAddr_o;
-                end
-                sramMode : begin
-                    request_o <= 1'b1;
-                    valid_o <= 1'b1;
-                    instAddr_o <= instAddr_o + 4;
-                end
-                default : begin
-                    
-                end
-            endcase
+            end
+
+        end else if(ModeType == 1) begin : CacheMode
+         
         end
-    end
+    endgenerate
 
 endmodule

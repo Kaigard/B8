@@ -9,7 +9,7 @@ module testRom (
 
     reg [7:0] romReg [10'h3FF * 4 : 0];
     reg [2:0] a;
-    bit b = 0;
+    bit b = 1;
     reg dataOk_inside;
     reg [31:0] inst_inside;
 

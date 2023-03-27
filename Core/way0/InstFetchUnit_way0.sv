@@ -3,6 +3,7 @@ module InstFetchUnit_way0 (
     input logic reset_n,
     input logic valid_i,
     input logic ready_i,
+    input logic jumpFlag_i,
     input logic [31:0] instAddr_i,
     input logic [31:0] inst_fetch_i,
     output logic ready_o,
@@ -16,6 +17,7 @@ module InstFetchUnit_way0 (
     // 数据类型定义
     //************************************************
     wire WFull;
+    wire W_Will_Full;
     wire REmpty;
     reg WInc;
 
@@ -24,8 +26,7 @@ module InstFetchUnit_way0 (
     //************************************************
     // assign request_o = valid_i;
     // assign instAddr_fetch_o = instAddr_i;
-    assign ready_o = ~WFull;
-
+    assign ready_o = ~WFull && ~W_Will_Full;
 
     // 数据暂存，防止取回数据但下一级未Ready而导致数据丢失
     DataFIFO #(.DataWidth(32), .FIFO_deepth(1))
@@ -37,7 +38,9 @@ module InstFetchUnit_way0 (
         .WFull(),
         .RData(inst_o),
         .RInc(ready_i && ~REmpty),
-        .REmpty(REmpty)
+        .REmpty(REmpty),
+        .Jump(),
+        .W_Will_Full()
     );
 
     DataFIFO #(.DataWidth(32), .FIFO_deepth(1))
@@ -49,7 +52,9 @@ module InstFetchUnit_way0 (
         .WFull(WFull),
         .RData(instAddr_o),
         .RInc(ready_i && ~REmpty),
-        .REmpty()
+        .REmpty(),
+        .Jump(),
+        .W_Will_Full(W_Will_Full)
     );
 
     always_ff @(posedge clk or negedge reset_n) begin
@@ -57,7 +62,7 @@ module InstFetchUnit_way0 (
             valid_o <= 1'b0;
             way0_pID_o <= 2'b10;
         end else if(ready_i && ~REmpty) begin
-            valid_o <= 1'b0;
+            valid_o <= 1'b1;
             way0_pID_o <= way0_pID_o + 2;
         end else begin 
             valid_o <= 1'b0;

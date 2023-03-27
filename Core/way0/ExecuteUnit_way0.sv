@@ -341,11 +341,11 @@ module ExecuteUnit_way0(
     //Jump
     MuxKeyWithDefault #(3, 7, 1) JumpFlag_mux (jumpFlag_o, opCode_i, 1'b0, {
     //Jar
-    7'b1101111, 1'b1,
+    7'b1101111, valid_i,
     //Jalr
-    7'b1100111, 1'b1,
+    7'b1100111, valid_i,
     //Beq   Bge   Bgeu   Blt   Bltu   Bne
-    7'b1100011, BranchFlag
+    7'b1100011, (BranchFlag && valid_i)
     });
 
     MuxKeyWithDefault #(6, 3, 1) BranchFlag_mux (BranchFlag, funct3_i, 1'b0, {
