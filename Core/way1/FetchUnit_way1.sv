@@ -1,4 +1,4 @@
-module FetchUnit_way0(
+module FetchUnit_way1(
     `ifdef DebugMode
         input logic [31:0] instAddr_i,
         input logic [31:0] inst_i,
@@ -12,7 +12,7 @@ module FetchUnit_way0(
     input logic [63:0] rdData_i,
     input logic valid_i,
     input logic ready_i,
-    input logic [1:0] way0_pID_i,
+    input logic [1:0] way1_pID_i,
     input logic [6:0] opCode_i,
     input logic [2:0] funct3_i,
     input logic [31:0] readAddr_i,
@@ -29,7 +29,7 @@ module FetchUnit_way0(
     output logic [63:0] rdData_o,
     output logic valid_o,
     output logic ready_o,
-    output logic [1:0] way0_pID_o,
+    output logic [1:0] way1_pID_o,
     // output logic dataOk_o,
     // output logic [2:0] writeState_o
     // To RAM
@@ -51,7 +51,7 @@ module FetchUnit_way0(
     assign rdWriteEnable_o = rdWriteEnable_i;
     assign rdAddr_o = rdAddr_i;
     assign valid_o = valid_i && ~|readAddr_i || dataOk_i;
-    assign way0_pID_o = way0_pID_i;
+    assign way1_pID_o = way1_pID_i;
     assign readAddr_o = valid_i ? readAddr_i : 32'b0;
     assign writeAddr_o = valid_i ? writeAddr_i : 32'b0;
     assign writeData_o = valid_i ? writeData_i : 64'b0;
@@ -61,7 +61,7 @@ module FetchUnit_way0(
                       dataOk_i || &writeState_i;
 
     DataBuffer #( .DataWidth(1), .ModeType(1) )
-	FU_way0_write_ready_way0 ( 
+	FU_way1_write_ready_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( 1'b0 ), 
@@ -74,7 +74,7 @@ module FetchUnit_way0(
 	);
 
     DataBuffer #( .DataWidth(1), .ModeType(1) )
-	FU_way0_read_ready_way0 ( 
+	FU_way1_read_ready_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( 1'b0 ), 

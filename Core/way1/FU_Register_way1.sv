@@ -1,4 +1,4 @@
-module FU_Register_way0(
+module FU_Register_way1(
     `ifdef DebugMode
         input logic [31:0] instAddr_i,
         input logic [31:0] inst_i,
@@ -12,7 +12,7 @@ module FU_Register_way0(
     input logic [63:0] rdData_i,
     input logic valid_i,
     input logic ready_i,
-    input logic [1:0] way0_pID_i,
+    input logic [1:0] way1_pID_i,
     input logic [6:0] opCode_i,
     input logic [2:0] funct3_i,
     input logic [31:0] readAddr_i,
@@ -27,7 +27,7 @@ module FU_Register_way0(
     output logic [63:0] rdData_o,
     output logic valid_o,
     output logic ready_o,
-    output logic [1:0] way0_pID_o,
+    output logic [1:0] way1_pID_o,
     output logic [6:0] opCode_o,
     output logic [2:0] funct3_o,
     // To RAM
@@ -43,7 +43,7 @@ module FU_Register_way0(
 
 
 	DataBuffer #( .DataWidth(1) )
-	FU_rdWriteEnable_Buffer_way0 ( 
+	FU_rdWriteEnable_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdWriteEnable_i ), 
@@ -56,7 +56,7 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(5) )
-	FU_rdAddr_Buffer_way0 ( 
+	FU_rdAddr_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdAddr_i ), 
@@ -69,7 +69,7 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(64) )
-	FU_rdData_Buffer_way0 ( 
+	FU_rdData_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdData_i ), 
@@ -82,20 +82,20 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(2) )
-	FU_way0_pID_Buffer_way0 ( 
+	FU_way1_pID_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
-		.WData( way0_pID_i ), 
+		.WData( way1_pID_i ), 
 		.WInc( valid_i ), 
 		.WFull(  ), 
-		.RData( way0_pID_o ), 
+		.RData( way1_pID_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
 		.Jump(  ) 
 	);
 
     DataBuffer #( .DataWidth(7) )
-	FU_opCode_Buffer_way0 ( 
+	FU_opCode_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( opCode_i ), 
@@ -108,7 +108,7 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(3) )
-	FU_funct3_Buffer_way0 ( 
+	FU_funct3_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( funct3_i ), 
@@ -121,7 +121,7 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(32) )
-	FU_readAddr_Buffer_way0 ( 
+	FU_readAddr_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( readAddr_i ), 
@@ -134,7 +134,7 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(32) )
-	FU_writeAddr_Buffer_way0 ( 
+	FU_writeAddr_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( writeAddr_i ), 
@@ -147,7 +147,7 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(64) )
-	FU_writeData_Buffer_way0 ( 
+	FU_writeData_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( writeData_i ), 
@@ -160,7 +160,7 @@ module FU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(4) )
-	FU_writeMask_Buffer_way0 ( 
+	FU_writeMask_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( writeMask_i ), 
@@ -269,13 +269,13 @@ module FU_Register_way0(
     //         rdWriteEnable_o <= 1'b0;
     //         rdAddr_o <= 5'b0;
     //         rdData_o <= 64'b0;
-    //         way0_pID_o <= 2'b0;
+    //         way1_pID_o <= 2'b0;
     //         funct3_o <= 3'b0;
     //     end else if(ready_i) begin
     //         rdWriteEnable_o <= rdWriteEnable_i;
     //         rdAddr_o <= rdAddr_i;
     //         rdData_o <= rdData_i;
-    //         way0_pID_o <= way0_pID_i;
+    //         way1_pID_o <= way1_pID_i;
     //         funct3_o <= funct3_i;;
     //     end
     // end
@@ -293,7 +293,7 @@ module FU_Register_way0(
 
     `ifdef DebugMode
 	    DataBuffer #( .DataWidth(32) )
-        FU_inst_Buffer_way0 ( 
+        FU_inst_Buffer_way1 ( 
             .Clk( clk ), 
             .Rst( reset_n ), 
             .WData( inst_i ), 
@@ -306,7 +306,7 @@ module FU_Register_way0(
         );
 
         DataBuffer #( .DataWidth(32) )
-        FU_instAddr_Buffer_way0 ( 
+        FU_instAddr_Buffer_way1 ( 
             .Clk( clk ), 
             .Rst( reset_n ), 
             .WData( instAddr_i ), 

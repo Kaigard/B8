@@ -15,6 +15,11 @@ module BnineCore_way0 (
     output logic [4:0] way0_rs1Addr_o,
     output logic [4:0] way0_rs2Addr_o,
 
+    output logic way0_rdWriteEnable_o,
+    output logic [4:0] way0_rdAddr_o,
+    output logic [63:0] way0_rdData_o,
+    output logic [1:0] way0_pID_o,
+
     // For Test
     input logic jumpFlag_i,
     input logic [31:0] jumpAddr_i,
@@ -89,6 +94,7 @@ module BnineCore_way0 (
     wire EU_way0_valid_o;
     wire EU_way0_ready_o;
 
+    wire [6:0] EU_way0_opCode_o;
     wire [2:0] EU_way0_funct3_o;
     wire [31:0] EU_way0_readAddr_o;
     wire [31:0] EU_way0_writeAddr_o;
@@ -114,7 +120,13 @@ module BnineCore_way0 (
     wire FU_way0_valid_o;
     wire FU_way0_ready_o;
     wire [1:0] FU_way0_pID_o;
+
+    wire [6:0] FU_way0_opCode_i;
     wire [2:0] FU_way0_funct3_i;
+    wire [31:0] FU_way0_readAddr_i;
+    wire [31:0] FU_way0_writeAddr_i;
+    wire [63:0] FU_way0_writeData_i;
+    wire [3:0] FU_way0_writeMask_i; 
     
     // WBU way0
     `ifdef DebugMode
@@ -265,6 +277,7 @@ module BnineCore_way0 (
         .valid_o(EU_way0_valid_o),
         .ready_o(EU_way0_ready_o),
         .way0_pID_o(EU_way0_pID_o),
+        .opCode_o(EU_way0_opCode_o),
         .funct3_o(EU_way0_funct3_o),
         .readAddr_o(EU_way0_readAddr_o),
         .writeAddr_o(EU_way0_writeAddr_o),
@@ -283,10 +296,23 @@ module BnineCore_way0 (
     logic dataOk_test;
     logic request_test;
 
+    reg [2:0] b;
+    class IFtest;
+        rand reg[2:0] randseed;
+    endclass // test
+
+    IFtest test1;
+
     // test
     reg [64:0] ram_test [1000:0];
     always @(posedge clk) begin
+        test1 = new();
         if(|writeAddr_test) begin
+            test1.randomize(randseed);
+            b = test1.randseed;
+            repeat (b) begin
+                @(posedge clk);
+            end
             ram_test[writeAddr_test] <= writeData_test;
             writeState_test <= 3'b111;
         end else 
@@ -295,7 +321,7 @@ module BnineCore_way0 (
     
     always @(posedge clk) begin
         if(|readAddr_test) begin
-            readData_test <= ram_test[readAddr_test];
+            readData_test <= readAddr_test;
             dataOk_test <= 1'b1;
         end else
             dataOk_test <= 1'b0;
@@ -317,6 +343,7 @@ module BnineCore_way0 (
         .valid_i(EU_way0_valid_o),
         .ready_i(FU_way0_ready_o),
         .way0_pID_i(EU_way0_pID_o),
+        .opCode_i(EU_way0_opCode_o),
         .funct3_i(EU_way0_funct3_o),
         .readAddr_i(EU_way0_readAddr_o),
         .writeAddr_i(EU_way0_writeAddr_o),
@@ -330,12 +357,13 @@ module BnineCore_way0 (
         .valid_o(FU_way0_valid_i),
         .ready_o(EU_way0_ready_i),
         .way0_pID_o(FU_way0_pID_i),
+        .opCode_o(FU_way0_opCode_i),
         .funct3_o(FU_way0_funct3_i),
         // To RAM
-        .readAddr_o(readAddr_test),
-        .writeAddr_o(writeAddr_test),
-        .writeData_o(writeData_test),
-        .writeMask_o()
+        .readAddr_o(FU_way0_readAddr_i),
+        .writeAddr_o(FU_way0_writeAddr_i),
+        .writeData_o(FU_way0_writeData_i),
+        .writeMask_o(FU_way0_writeMask_i)
     );
 
     FetchUnit_way0 B_FetchUnit_way0(
@@ -353,7 +381,12 @@ module BnineCore_way0 (
         .valid_i(FU_way0_valid_i),
         .ready_i(FU_way0_ready_i),
         .way0_pID_i(FU_way0_pID_i),
+        .opCode_i(FU_way0_opCode_i),
         .funct3_i(FU_way0_funct3_i),
+        .readAddr_i(FU_way0_readAddr_i),
+        .writeAddr_i(FU_way0_writeAddr_i),
+        .writeData_i(FU_way0_writeData_i),
+        .writeMask_i(FU_way0_writeMask_i),
         // From RAM
         .readData_i(readData_test),
         .dataOk_i(dataOk_test),
@@ -363,7 +396,12 @@ module BnineCore_way0 (
         .rdData_o(FU_way0_rdData_o),
         .valid_o(FU_way0_valid_o),
         .ready_o(FU_way0_ready_o),
-        .way0_pID_o(FU_way0_pID_o)
+        .way0_pID_o(FU_way0_pID_o),
+        // To RAM
+        .readAddr_o(readAddr_test),
+        .writeAddr_o(writeAddr_test),
+        .writeData_o(writeData_test),
+        .writeMask_o()
     );
 
     WBU_Register_way0 B_WBU_Register_way0(
@@ -393,7 +431,7 @@ module BnineCore_way0 (
 
     WriteBackUnit_way0 B_WriteBackUnit_way0(
         `ifdef DebugMode
-            .instAddr_i(WBU_way0_instAddr_o),
+            .instAddr_i(WBU_way0_instAddr_i),
             .inst_i(WBU_way0_inst_i),
             .instAddr_o(),
             .inst_o(),
@@ -404,12 +442,11 @@ module BnineCore_way0 (
         .valid_i(WBU_way0_valid_i),
         .ready_i(ready_test),
         .way0_pID_i(WBU_way0_pID_i),
-        .rdWriteEnable_o(),
-        .rdAddr_o(),
-        .rdData_o(),
-        .valid_o(),
-        .ready_o(WBU_way0_ready_o),
-        .way0_pID_o()
+        .rdWriteEnable_o(way0_rdWriteEnable_o),
+        .rdAddr_o(way0_rdAddr_o),
+        .rdData_o(way0_rdData_o),
+        .way0_pID_o(way0_pID_o),
+        .ready_o(WBU_way0_ready_o)
     );
 
 endmodule

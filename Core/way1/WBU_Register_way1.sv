@@ -1,4 +1,4 @@
-module WBU_Register_way0(
+module WBU_Register_way1(
     `ifdef DebugMode
         input logic [31:0] instAddr_i,
         input logic [31:0] inst_i,
@@ -13,7 +13,7 @@ module WBU_Register_way0(
     input logic [63:0] rdData_i,
     input logic valid_i,
     input logic ready_i,
-    input logic [1:0] way0_pID_i,
+    input logic [1:0] way1_pID_i,
     input logic dataOk_i,
     input logic [2:0] writeState_i,
 
@@ -22,13 +22,13 @@ module WBU_Register_way0(
     output logic [63:0] rdData_o,
     output logic valid_o,
     output logic ready_o,
-    output logic [1:0] way0_pID_o
+    output logic [1:0] way1_pID_o
 );
 
     assign ready_o = ready_i;
 
 	DataBuffer #( .DataWidth(1) )
-	WBU_rdWriteEnable_Buffer_way0 ( 
+	WBU_rdWriteEnable_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdWriteEnable_i ), 
@@ -41,7 +41,7 @@ module WBU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(5) )
-	WBU_rdAddr_Buffer_way0 ( 
+	WBU_rdAddr_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdAddr_i ), 
@@ -54,7 +54,7 @@ module WBU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(64) )
-	WBU_rdData_Buffer_way0 ( 
+	WBU_rdData_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdData_i ), 
@@ -67,13 +67,13 @@ module WBU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(2) )
-	WBU_way0_pID_Buffer_way0 ( 
+	WBU_way1_pID_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
-		.WData( way0_pID_i ), 
+		.WData( way1_pID_i ), 
 		.WInc( valid_i ), 
 		.WFull(  ), 
-		.RData( way0_pID_o ), 
+		.RData( way1_pID_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
 		.Jump(  ) 
@@ -91,7 +91,7 @@ module WBU_Register_way0(
 
     `ifdef DebugMode
         DataBuffer #( .DataWidth(32) )
-        WBU_inst_Buffer_way0 ( 
+        WBU_inst_Buffer_way1 ( 
             .Clk( clk ), 
             .Rst( reset_n ), 
             .WData( inst_i ), 
@@ -104,7 +104,7 @@ module WBU_Register_way0(
         );
 
         DataBuffer #( .DataWidth(32) )
-        WBU_instAddr_Buffer_way0 ( 
+        WBU_instAddr_Buffer_way1 ( 
             .Clk( clk ), 
             .Rst( reset_n ), 
             .WData( instAddr_i ), 

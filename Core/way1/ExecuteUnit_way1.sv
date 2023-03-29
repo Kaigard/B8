@@ -1,4 +1,4 @@
-module ExecuteUnit_way0(
+module ExecuteUnit_way1(
     `ifdef DebugMode
         output logic [31:0] instAddr_o,
         input logic [31:0] inst_i,
@@ -16,14 +16,14 @@ module ExecuteUnit_way0(
     input logic [5:0] shamt_i,
     input logic valid_i,
     input logic ready_i,
-    input logic [1:0] way0_pID_i,
+    input logic [1:0] way1_pID_i,
     // To FU
     output logic rdWriteEnable_o,
     output logic [4:0] rdAddr_o,
     output logic [63:0] rdData_o,
     output logic valid_o,
     output logic ready_o,
-    output logic [1:0] way0_pID_o,
+    output logic [1:0] way1_pID_o,
     output logic [6:0] opCode_o,
     output logic [2:0] funct3_o,
     output logic [31:0] readAddr_o,
@@ -42,7 +42,7 @@ module ExecuteUnit_way0(
 
     assign valid_o = valid_i;
     assign ready_o = ready_i;
-    assign way0_pID_o = way0_pID_i;
+    assign way1_pID_o = way1_pID_i;
     assign rdWriteEnable_o = rdWriteEnable_i;
     assign rdAddr_o = rdAddr_i;
     assign funct3_o = |readAddr_o ? funct3_i : 3'b0;

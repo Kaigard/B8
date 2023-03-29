@@ -1,4 +1,4 @@
-module EU_Register_way0(
+module EU_Register_way1(
     `ifdef DebugMode
         input logic [31:0] inst_i,
         output logic [31:0] inst_o,
@@ -15,7 +15,7 @@ module EU_Register_way0(
     input logic [2:0] funct3_i,
     input logic [6:0] funct7_i,
     input logic [5:0] shamt_i,
-    input logic [1:0] way0_pID_i,
+    input logic [1:0] way1_pID_i,
     input logic valid_i,
     input logic ready_i,
     input logic jumpFlag_i,
@@ -30,7 +30,7 @@ module EU_Register_way0(
     output logic [2:0] funct3_o,
     output logic [6:0] funct7_o,
     output logic [5:0] shamt_o,
-    output logic [1:0] way0_pID_o,
+    output logic [1:0] way1_pID_o,
     output logic valid_o,
     output logic ready_o
 );
@@ -43,7 +43,7 @@ module EU_Register_way0(
     // assign valid_o = ~REmpty;
 
 	DataBuffer #( .DataWidth(5) )
-	EU_rdAddr_Buffer_way0 ( 
+	EU_rdAddr_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdAddr_i ), 
@@ -56,7 +56,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(1) )
-	EU_rdWriteEnable_Buffer_way0 ( 
+	EU_rdWriteEnable_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rdWriteEnable_i ), 
@@ -69,7 +69,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(32) )
-	EU_instAddr_Buffer_way0 ( 
+	EU_instAddr_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( instAddr_i ), 
@@ -82,7 +82,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(64) )
-	EU_rs1ReadData_Buffer_way0 ( 
+	EU_rs1ReadData_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rs1ReadData_i ), 
@@ -95,7 +95,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(64) )
-	EU_rs2ReadData_Buffer_way0 ( 
+	EU_rs2ReadData_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( rs2ReadData_i ), 
@@ -108,7 +108,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(64) )
-	EU_imm_Buffer_way0 ( 
+	EU_imm_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( imm_i ), 
@@ -121,7 +121,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(7) )
-	EU_opCode_Buffer_way0 ( 
+	EU_opCode_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( opCode_i ), 
@@ -134,7 +134,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(3) )
-	EU_funct3_Buffer_way0 ( 
+	EU_funct3_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( funct3_i ), 
@@ -147,7 +147,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(7) )
-	EU_funct7_Buffer_way0 ( 
+	EU_funct7_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( funct7_i ), 
@@ -160,7 +160,7 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(6) )
-	EU_shamt_Buffer_way0 ( 
+	EU_shamt_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
 		.WData( shamt_i ), 
@@ -173,13 +173,13 @@ module EU_Register_way0(
 	);
 
 	DataBuffer #( .DataWidth(2) )
-	EU_way0_pID_Buffer_way0 ( 
+	EU_way1_pID_Buffer_way1 ( 
 		.Clk( clk ), 
 		.Rst( reset_n ), 
-		.WData( way0_pID_i ), 
+		.WData( way1_pID_i ), 
 		.WInc( valid_i ), 
 		.WFull(  ), 
-		.RData( way0_pID_o ), 
+		.RData( way1_pID_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
 		.Jump(  ) 
@@ -197,7 +197,7 @@ module EU_Register_way0(
 
     `ifdef DebugMode
         DataBuffer #(.DataWidth(32))
-        EU_inst_Buffer_way0 (
+        EU_inst_Buffer_way1 (
             .Clk(clk),
             .Rst(reset_n),
             .WData(inst_i),
