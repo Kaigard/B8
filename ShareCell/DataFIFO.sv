@@ -74,6 +74,8 @@ module DataFIFO
   always_ff @(posedge Clk or negedge Rst) begin
     if(~Rst) begin
       RData <= 'b0;
+    end else if(Jump) begin
+      RData <= 'b0;
     end else if(RInc) begin
       RData <= BufferMemory[ReadPoint[FIFO_deepth + 1:0]];
     end

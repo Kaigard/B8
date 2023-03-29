@@ -36,6 +36,9 @@ module DataBuffer
                 if(~Rst) begin
                     RData <= 'b0;
                     dataRegister <= 'b0;
+                end else if(Jump) begin
+                    RData <= 'b0;
+                    dataRegister <= 'b0;
                 end else begin
                     case ({WInc, RInc})
                         2'b11 : begin
