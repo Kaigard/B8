@@ -39,7 +39,7 @@ module InstFetchUnit_way1 (
         .RData(inst_o),
         .RInc(ready_i && ~REmpty),
         .REmpty(REmpty),
-        .Jump(),
+        .Jump(jumpFlag_i),
         .W_Will_Full()
     );
 
@@ -53,15 +53,15 @@ module InstFetchUnit_way1 (
         .RData(instAddr_o),
         .RInc(ready_i && ~REmpty),
         .REmpty(),
-        .Jump(),
+        .Jump(jumpFlag_i),
         .W_Will_Full(W_Will_Full)
     );
 
     always_ff @(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
             valid_o <= 1'b0;
-            way1_pID_o <= 2'b10;
-        end else if(ready_i && ~REmpty) begin
+            way1_pID_o <= 2'b11;
+        end else if(ready_i && ~REmpty && ~jumpFlag_i) begin
             valid_o <= 1'b1;
             way1_pID_o <= way1_pID_o + 2;
         end else begin 

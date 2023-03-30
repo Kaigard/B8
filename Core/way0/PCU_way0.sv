@@ -30,7 +30,7 @@ module PCU_way0
                             PC <= jumpAddr_i;
                             request <= 1'b1;
                         end else begin
-                            PC <= PC + 4;
+                            PC <= PC + 8;
                             request <= 1'b1;
                         end
                     end else begin

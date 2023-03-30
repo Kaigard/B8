@@ -6,19 +6,28 @@ module BnineCore_way1 (
     // From RegFile
     input logic [63:0] way1_rs1ReadData_i,
     input logic [63:0] way1_rs2ReadData_i,
+    input logic way1_ready_i,
+    // From JumpCtrl
+    input logic way1_jumpFlag_i,
+    input logic [31:0] way1_jumpAddr_i,
     // To I-Cache
     output logic way1_request_o,
     output logic [31:0] way1_instAddr_fetch_o,
-    // To RegFile
+    // DU to RegFile
     output logic way1_rs1ReadEnable_o,
     output logic way1_rs2ReadEnable_o,
     output logic [4:0] way1_rs1Addr_o,
     output logic [4:0] way1_rs2Addr_o,
-
+    output logic [1:0] way1_DU_pID_o,
+    // WBU to RegFile
     output logic way1_rdWriteEnable_o,
     output logic [4:0] way1_rdAddr_o,
     output logic [63:0] way1_rdData_o,
-    output logic [1:0] way1_pID_o,
+    output logic [1:0] way1_WBU_pID_o,
+    // To JumpCtrl
+    output logic way1_jumpFlag_o,
+    output logic [31:0] way1_jumpAddr_o,
+    output logic [1:0] way1_EU_pID_o,
 
     // For Test
     input logic jumpFlag_i,
@@ -148,8 +157,8 @@ module BnineCore_way1 (
         .ready_i(PCU_way1_ready_i),
         // .ready_i(ready_test),
         .dataOk_i(way1_dataOk_i),
-        .jumpFlag_i(EU_way1_jumpFlag_o),
-        .jumpAddr_i(EU_way1_jumpAddr_o),
+        .jumpFlag_i(way1_jumpFlag_i),
+        .jumpAddr_i(way1_jumpAddr_i),
         .request_o(way1_request_o),
         .valid_o(PCU_way1_valid_o),
         .instAddr_o(way1_instAddr_fetch_o)
@@ -166,7 +175,7 @@ module BnineCore_way1 (
         .reset_n(reset_n),
         .valid_i(PCU_way1_valid_o),
         .ready_i(IFU_way1_ready_i),
-        .jumpFlag_i(EU_way1_jumpFlag_o),
+        .jumpFlag_i(way1_jumpFlag_i),
         // RAM
         .instAddr_i(way1_instAddr_fetch_o),
         .inst_fetch_i(way1_inst_fetch_i),
@@ -212,7 +221,7 @@ module BnineCore_way1 (
         // To IFU
         .ready_o(IFU_way1_ready_i),
         // To DU Register && IFU
-        .way1_pID_o(DU_way1_pID_o)
+        .way1_pID_o(way1_DU_pID_o)
     );
 
     EU_Register_way1 B_EU_Register_way1(
@@ -232,11 +241,10 @@ module BnineCore_way1 (
         .funct3_i(DU_way1_funct3_o),
         .funct7_i(DU_way1_funct7_o),
         .shamt_i(DU_way1_shamt_o),
-        .way1_pID_i(DU_way1_pID_o),
+        .way1_pID_i(way1_DU_pID_o),
         .valid_i(DU_way1_valid_o),
         .ready_i(EU_way1_ready_o),
-        .jumpFlag_i(EU_way1_jumpFlag_o),
-        .jumpAddr_i(EU_way1_jumpAddr_o),
+        .jumpFlag_i(way1_jumpFlag_i),
         .rdAddr_o(EU_way1_rdAddr_i),
         .rdWriteEnable_o(EU_way1_rdWriteEnable_i),
         .instAddr_o(EU_way1_instAddr_i),
@@ -276,15 +284,15 @@ module BnineCore_way1 (
         .rdData_o(EU_way1_rdData_o),
         .valid_o(EU_way1_valid_o),
         .ready_o(EU_way1_ready_o),
-        .way1_pID_o(EU_way1_pID_o),
+        .way1_pID_o(way1_EU_pID_o),
         .opCode_o(EU_way1_opCode_o),
         .funct3_o(EU_way1_funct3_o),
         .readAddr_o(EU_way1_readAddr_o),
         .writeAddr_o(EU_way1_writeAddr_o),
         .writeData_o(EU_way1_writeData_o),
         .writeMask_o(EU_way1_writeMask_o),
-        .jumpFlag_o(EU_way1_jumpFlag_o),
-        .jumpAddr_o(EU_way1_jumpAddr_o)
+        .jumpFlag_o(way1_jumpFlag_o),
+        .jumpAddr_o(way1_jumpAddr_o)
     );
 
 
@@ -342,7 +350,7 @@ module BnineCore_way1 (
         .rdData_i(EU_way1_rdData_o),
         .valid_i(EU_way1_valid_o),
         .ready_i(FU_way1_ready_o),
-        .way1_pID_i(EU_way1_pID_o),
+        .way1_pID_i(way1_EU_pID_o),
         .opCode_i(EU_way1_opCode_o),
         .funct3_i(EU_way1_funct3_o),
         .readAddr_i(EU_way1_readAddr_o),
@@ -440,12 +448,12 @@ module BnineCore_way1 (
         .rdAddr_i(WBU_way1_rdAddr_i),
         .rdData_i(WBU_way1_rdData_i),
         .valid_i(WBU_way1_valid_i),
-        .ready_i(ready_test),
+        .ready_i(way1_ready_i),
         .way1_pID_i(WBU_way1_pID_i),
         .rdWriteEnable_o(way1_rdWriteEnable_o),
         .rdAddr_o(way1_rdAddr_o),
         .rdData_o(way1_rdData_o),
-        .way1_pID_o(way1_pID_o),
+        .way1_pID_o(way1_WBU_pID_o),
         .ready_o(WBU_way1_ready_o)
     );
 

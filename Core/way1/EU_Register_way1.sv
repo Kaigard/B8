@@ -19,7 +19,6 @@ module EU_Register_way1(
     input logic valid_i,
     input logic ready_i,
     input logic jumpFlag_i,
-    input logic [31:0] jumpAddr_i,
     output logic [4:0] rdAddr_o,
     output logic rdWriteEnable_o,
     output logic [31:0] instAddr_o,
@@ -52,7 +51,7 @@ module EU_Register_way1(
 		.RData( rdAddr_o ), 
 		.RInc( ready_i ), 
 		.REmpty( REmpty ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(1) )
@@ -65,7 +64,7 @@ module EU_Register_way1(
 		.RData( rdWriteEnable_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(32) )
@@ -78,7 +77,7 @@ module EU_Register_way1(
 		.RData( instAddr_o ), 
 		.RInc( ready_i && ~REmpty ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(64) )
@@ -91,7 +90,7 @@ module EU_Register_way1(
 		.RData( rs1ReadData_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(64) )
@@ -104,7 +103,7 @@ module EU_Register_way1(
 		.RData( rs2ReadData_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(64) )
@@ -117,7 +116,7 @@ module EU_Register_way1(
 		.RData( imm_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(7) )
@@ -130,7 +129,7 @@ module EU_Register_way1(
 		.RData( opCode_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(3) )
@@ -143,7 +142,7 @@ module EU_Register_way1(
 		.RData( funct3_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(7) )
@@ -156,7 +155,7 @@ module EU_Register_way1(
 		.RData( funct7_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(6) )
@@ -169,7 +168,7 @@ module EU_Register_way1(
 		.RData( shamt_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
 	DataBuffer #( .DataWidth(2) )
@@ -182,13 +181,13 @@ module EU_Register_way1(
 		.RData( way1_pID_o ), 
 		.RInc( ready_i ), 
 		.REmpty(  ), 
-		.Jump(  ) 
+		.Jump( jumpFlag_i ) 
 	);
 
     always_ff @(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
             valid_o <= 1'b0;
-        end else if(ready_i && ~REmpty) begin
+        end else if(ready_i && ~REmpty && ~jumpFlag_i) begin
             valid_o <= 1'b1;
         end else begin
             valid_o <= 1'b0;
@@ -206,7 +205,7 @@ module EU_Register_way1(
             .RData(inst_o),
             .RInc(ready_i),
             .REmpty(),
-            .Jump()
+            .Jump(jumpFlag_i)
         );
     `endif
 

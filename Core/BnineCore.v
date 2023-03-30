@@ -1,5 +1,5 @@
 `define DebugMode 1
-`define RegFileTest 1
+// `define RegFileTest 1
 module BnineCore (
     input clk,
     input reset_n,
@@ -19,7 +19,37 @@ module BnineCore (
     wire [31:0] way1_inst_fetch_i;
     wire [31:0] way1_instAddr_fetch_o;
 
+    // JumpCtrl
+    wire way0_jumpFlag_o;
+    wire [31:0] way0_jumpAddr_o;
+    wire [1:0] way0_EU_pID_o;
+    wire way0_jumpFlag_i;
+    wire [31:0] way0_jumpAddr_i;
+    
+    wire way1_jumpFlag_o;
+    wire [31:0] way1_jumpAddr_o;
+    wire [1:0] way1_EU_pID_o;
+    wire way1_jumpFlag_i;
+    wire [31:0] way1_jumpAddr_i;
 
+    // RegFile
+    // DU
+    wire [1:0] way0_DU_pID_o;
+    wire [1:0] way1_DU_pID_o;
+    // WBU
+    wire way0_rdWriteEnable_o;
+    wire [4:0] way0_rdAddr_o;
+    wire [63:0] way0_rdData_o;
+    wire [1:0] way0_WBU_pID_o;
+    
+    wire way1_rdWriteEnable_o;
+    wire [4:0] way1_rdAddr_o;
+    wire [63:0] way1_rdData_o;
+    wire [1:0] way1_WBU_pID_o;
+
+    // WBU
+    wire way0_ready_i;
+    wire way1_ready_i;
 
     testRom u_testRom_way0 (
         .clk(clk),
@@ -53,7 +83,6 @@ module BnineCore (
     wire [63:0] way1_rs1ReadData_i;
     wire [63:0] way1_rs2ReadData_i;
 
-
     BnineCore_way0 B_BnineCore_way0(
         .clk(clk),
         .reset_n(reset_n),
@@ -62,15 +91,28 @@ module BnineCore (
         // From RegFile
         .way0_rs1ReadData_i(way0_rs1ReadData_i),
         .way0_rs2ReadData_i(way0_rs2ReadData_i),
+        .way0_ready_i(way0_ready_i),
+        // From JumpCtrl
+        .way0_jumpFlag_i(way0_jumpFlag_i),
+        .way0_jumpAddr_i(way0_jumpAddr_i),
         // To I-Cache
         .way0_request_o(way0_request_o),
         .way0_instAddr_fetch_o(way0_instAddr_fetch_o),
-        // To RegFile
+        // DU to RegFile
         .way0_rs1ReadEnable_o(way0_rs1ReadEnable_o),
         .way0_rs2ReadEnable_o(way0_rs2ReadEnable_o),
         .way0_rs1Addr_o(way0_rs1Addr_o),
         .way0_rs2Addr_o(way0_rs2Addr_o),
-
+        .way0_DU_pID_o(way0_DU_pID_o),
+        // WBU to RegFile
+        .way0_rdWriteEnable_o(way0_rdWriteEnable_o),
+        .way0_rdAddr_o(way0_rdAddr_o),
+        .way0_rdData_o(way0_rdData_o),
+        .way0_WBU_pID_o(way0_WBU_pID_o),
+        // To JumpCtrl
+        .way0_jumpFlag_o(way0_jumpFlag_o),
+        .way0_jumpAddr_o(way0_jumpAddr_o),
+        .way0_EU_pID_o(way0_EU_pID_o),
         // For Test
         .jumpFlag_i(jumpFlag_i),
         .jumpAddr_i(jumpAddr_i),
@@ -85,15 +127,28 @@ module BnineCore (
         // From RegFile
         .way1_rs1ReadData_i(way1_rs1ReadData_i),
         .way1_rs2ReadData_i(way1_rs2ReadData_i),
+        .way1_ready_i(way1_ready_i),
+        // From JumpCtrl
+        .way1_jumpFlag_i(way1_jumpFlag_i),
+        .way1_jumpAddr_i(way1_jumpAddr_i),
         // To I-Cache
         .way1_request_o(way1_request_o),
         .way1_instAddr_fetch_o(way1_instAddr_fetch_o),
-        // To RegFile
+        // DU to RegFile
         .way1_rs1ReadEnable_o(way1_rs1ReadEnable_o),
         .way1_rs2ReadEnable_o(way1_rs2ReadEnable_o),
         .way1_rs1Addr_o(way1_rs1Addr_o),
         .way1_rs2Addr_o(way1_rs2Addr_o),
-
+        .way1_DU_pID_o(way1_DU_pID_o),
+        // WBU to RegFile
+        .way1_rdWriteEnable_o(way1_rdWriteEnable_o),
+        .way1_rdAddr_o(way1_rdAddr_o),
+        .way1_rdData_o(way1_rdData_o),
+        .way1_WBU_pID_o(way1_WBU_pID_o),
+        // To JumpCtrl
+        .way1_jumpFlag_o(way1_jumpFlag_o),
+        .way1_jumpAddr_o(way1_jumpAddr_o),
+        .way1_EU_pID_o(way1_EU_pID_o),
         // For Test
         .jumpFlag_i(jumpFlag_i),
         .jumpAddr_i(jumpAddr_i),
@@ -108,18 +163,50 @@ module BnineCore (
         .way0_rs2Addr_i(way0_rs2Addr_o),
         .way0_rs1ReadEnable_i(way0_rs1ReadEnable_o),
         .way0_rs2ReadEnable_i(way0_rs2ReadEnable_o),
-        .way0_pID_i(),
+        .way0_DU_pID_i(way0_DU_pID_o),
         // way1
         .way1_rs1Addr_i(way1_rs1Addr_o),
         .way1_rs2Addr_i(way1_rs2Addr_o),
         .way1_rs1ReadEnable_i(way1_rs1ReadEnable_o),
         .way1_rs2ReadEnable_i(way1_rs2ReadEnable_o),
-        .way1_pID_i(),
+        .way1_DU_pID_i(way1_DU_pID_o),
+
+        // WBU
+        .way0_rdWriteEnable_i(way0_rdWriteEnable_o),
+        .way0_rdAddr_i(way0_rdAddr_o),
+        .way0_rdData_i(way0_rdData_o),
+        .way0_WBU_pID_i(way0_WBU_pID_o),
+        .way1_rdWriteEnable_i(way1_rdWriteEnable_o),
+        .way1_rdAddr_i(way1_rdAddr_o),
+        .way1_rdData_i(way1_rdData_o),
+        .way1_WBU_pID_i(way1_WBU_pID_o),
+
         // To DU
         .way0_rs1ReadData_o(way0_rs1ReadData_i),
         .way0_rs2ReadData_o(way0_rs2ReadData_i),
         .way1_rs1ReadData_o(way1_rs1ReadData_i),
-        .way1_rs2ReadData_o(way1_rs2ReadData_i)
+        .way1_rs2ReadData_o(way1_rs2ReadData_i),
+        
+        // To WBU
+        .way0_ready_o(way0_ready_i),
+        .way1_ready_o(way1_ready_i)
+    );
+
+    JumpCtrl B_JumpCtrl(
+        // way0
+        .way0_jumpFlag_i(way0_jumpFlag_o),
+        .way0_jumpAddr_i(way0_jumpAddr_o),
+        .way0_EU_pID_i(way0_EU_pID_o),
+        // way1
+        .way1_jumpFlag_i(way1_jumpFlag_o),
+        .way1_jumpAddr_i(way1_jumpAddr_o),
+        .way1_EU_pID_i(way1_EU_pID_o),
+        // To way0
+        .way0_jumpFlag_o(way0_jumpFlag_i),
+        .way0_jumpAddr_o(way0_jumpAddr_i),
+        // To way1
+        .way1_jumpFlag_o(way1_jumpFlag_i),
+        .way1_jumpAddr_o(way1_jumpAddr_i)
     );
 
 endmodule

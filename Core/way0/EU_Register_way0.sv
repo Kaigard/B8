@@ -19,7 +19,6 @@ module EU_Register_way0(
     input logic valid_i,
     input logic ready_i,
     input logic jumpFlag_i,
-    input logic [31:0] jumpAddr_i,
     output logic [4:0] rdAddr_o,
     output logic rdWriteEnable_o,
     output logic [31:0] instAddr_o,

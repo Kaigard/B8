@@ -148,7 +148,7 @@ module ExecuteUnit_way0(
         6'b000000, Rs1ReadDataSllImm
         }); 
 
-    //R                  
+    //R             
     MuxKeyWithDefault #(2, 7, 64) Funct7_RV32I_R_Type (Funct7_RV32I_R_TypeOut, funct7_i, 64'b0, {
     //Add or Xor or Or or And or Slt or Sltu or Sll or Srl
     7'b0000000, Funct3_RV32I_R_Type_ZeroOut,

@@ -6,19 +6,29 @@ module BnineCore_way0 (
     // From RegFile
     input logic [63:0] way0_rs1ReadData_i,
     input logic [63:0] way0_rs2ReadData_i,
+    // WBU from RegFile
+    input logic way0_ready_i,
+    // From JumpCtrl
+    input logic way0_jumpFlag_i,
+    input logic [31:0] way0_jumpAddr_i,
     // To I-Cache
     output logic way0_request_o,
     output logic [31:0] way0_instAddr_fetch_o,
-    // To RegFile
+    // DU to RegFile
     output logic way0_rs1ReadEnable_o,
     output logic way0_rs2ReadEnable_o,
     output logic [4:0] way0_rs1Addr_o,
     output logic [4:0] way0_rs2Addr_o,
-
+    output logic [1:0] way0_DU_pID_o,
+    // WBU to RegFile
     output logic way0_rdWriteEnable_o,
     output logic [4:0] way0_rdAddr_o,
     output logic [63:0] way0_rdData_o,
-    output logic [1:0] way0_pID_o,
+    output logic [1:0] way0_WBU_pID_o,
+    // To JumpCtrl
+    output logic way0_jumpFlag_o,
+    output logic [31:0] way0_jumpAddr_o,
+    output logic [1:0] way0_EU_pID_o,
 
     // For Test
     input logic jumpFlag_i,
@@ -87,9 +97,6 @@ module BnineCore_way0 (
     wire [4:0] EU_way0_rdAddr_o;
     wire [63:0] EU_way0_rdData_o;
 
-    wire EU_way0_jumpFlag_o;
-    wire [31:0] EU_way0_jumpAddr_o;
-
     wire [1:0] EU_way0_pID_o;
     wire EU_way0_valid_o;
     wire EU_way0_ready_o;
@@ -101,7 +108,7 @@ module BnineCore_way0 (
     wire [63:0] EU_way0_writeData_o;
     wire [3:0] EU_way0_writeMask_o;
 
-    // FU way0
+    // FU_way0
     `ifdef DebugMode
         wire [31:0] FU_way0_instAddr_i;
         wire [31:0] FU_way0_inst_i;
@@ -128,7 +135,7 @@ module BnineCore_way0 (
     wire [63:0] FU_way0_writeData_i;
     wire [3:0] FU_way0_writeMask_i; 
     
-    // WBU way0
+    // WBU_way0
     `ifdef DebugMode
         wire [31:0] WBU_way0_instAddr_i;
         wire [31:0] WBU_way0_inst_i;
@@ -148,8 +155,8 @@ module BnineCore_way0 (
         .ready_i(PCU_way0_ready_i),
         // .ready_i(ready_test),
         .dataOk_i(way0_dataOk_i),
-        .jumpFlag_i(EU_way0_jumpFlag_o),
-        .jumpAddr_i(EU_way0_jumpAddr_o),
+        .jumpFlag_i(way0_jumpFlag_i),
+        .jumpAddr_i(way0_jumpAddr_i),
         .request_o(way0_request_o),
         .valid_o(PCU_way0_valid_o),
         .instAddr_o(way0_instAddr_fetch_o)
@@ -166,7 +173,7 @@ module BnineCore_way0 (
         .reset_n(reset_n),
         .valid_i(PCU_way0_valid_o),
         .ready_i(IFU_way0_ready_i),
-        .jumpFlag_i(EU_way0_jumpFlag_o),
+        .jumpFlag_i(way0_jumpFlag_i),
         // RAM
         .instAddr_i(way0_instAddr_fetch_o),
         .inst_fetch_i(way0_inst_fetch_i),
@@ -212,7 +219,7 @@ module BnineCore_way0 (
         // To IFU
         .ready_o(IFU_way0_ready_i),
         // To DU Register && IFU
-        .way0_pID_o(DU_way0_pID_o)
+        .way0_pID_o(way0_DU_pID_o)
     );
 
     EU_Register_way0 B_EU_Register_way0(
@@ -232,11 +239,10 @@ module BnineCore_way0 (
         .funct3_i(DU_way0_funct3_o),
         .funct7_i(DU_way0_funct7_o),
         .shamt_i(DU_way0_shamt_o),
-        .way0_pID_i(DU_way0_pID_o),
+        .way0_pID_i(way0_DU_pID_o),
         .valid_i(DU_way0_valid_o),
         .ready_i(EU_way0_ready_o),
-        .jumpFlag_i(EU_way0_jumpFlag_o),
-        .jumpAddr_i(EU_way0_jumpAddr_o),
+        .jumpFlag_i(way0_jumpFlag_i),
         .rdAddr_o(EU_way0_rdAddr_i),
         .rdWriteEnable_o(EU_way0_rdWriteEnable_i),
         .instAddr_o(EU_way0_instAddr_i),
@@ -276,15 +282,15 @@ module BnineCore_way0 (
         .rdData_o(EU_way0_rdData_o),
         .valid_o(EU_way0_valid_o),
         .ready_o(EU_way0_ready_o),
-        .way0_pID_o(EU_way0_pID_o),
+        .way0_pID_o(way0_EU_pID_o),
         .opCode_o(EU_way0_opCode_o),
         .funct3_o(EU_way0_funct3_o),
         .readAddr_o(EU_way0_readAddr_o),
         .writeAddr_o(EU_way0_writeAddr_o),
         .writeData_o(EU_way0_writeData_o),
         .writeMask_o(EU_way0_writeMask_o),
-        .jumpFlag_o(EU_way0_jumpFlag_o),
-        .jumpAddr_o(EU_way0_jumpAddr_o)
+        .jumpFlag_o(way0_jumpFlag_o),
+        .jumpAddr_o(way0_jumpAddr_o)
     );
 
 
@@ -342,7 +348,7 @@ module BnineCore_way0 (
         .rdData_i(EU_way0_rdData_o),
         .valid_i(EU_way0_valid_o),
         .ready_i(FU_way0_ready_o),
-        .way0_pID_i(EU_way0_pID_o),
+        .way0_pID_i(way0_EU_pID_o),
         .opCode_i(EU_way0_opCode_o),
         .funct3_i(EU_way0_funct3_o),
         .readAddr_i(EU_way0_readAddr_o),
@@ -440,12 +446,12 @@ module BnineCore_way0 (
         .rdAddr_i(WBU_way0_rdAddr_i),
         .rdData_i(WBU_way0_rdData_i),
         .valid_i(WBU_way0_valid_i),
-        .ready_i(ready_test),
+        .ready_i(),
         .way0_pID_i(WBU_way0_pID_i),
         .rdWriteEnable_o(way0_rdWriteEnable_o),
         .rdAddr_o(way0_rdAddr_o),
         .rdData_o(way0_rdData_o),
-        .way0_pID_o(way0_pID_o),
+        .way0_pID_o(way0_WBU_pID_o),
         .ready_o(WBU_way0_ready_o)
     );
 
