@@ -41,7 +41,7 @@ module RegFile(
 
     `ifdef RegFileTest
         initial begin
-            for (integer i = 0; i < 32; i = i + 1) begin
+            for (integer i = 1; i < 32; i = i + 1) begin
                 Register[i] = i;
             end
         end
@@ -53,11 +53,42 @@ module RegFile(
      * 当way0_pID为00且way1_pID为01时（初始状态）： 
      * 
     */
+
+    always_comb begin
+        case ({way0_WBU_pID_i, way1_WBU_pID_i})
+            4'b00_01 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b1;
+            end
+            4'b10_11 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b1;
+            end
+            4'b10_01 : begin
+                way0_ready_o = 1'b0;
+                way1_ready_o = 1'b1;
+            end
+            default : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b1;
+            end
+        endcase
+    end
     
-   // 数据寄存不复位
+
+    // 数据寄存不复位
     always_ff @(posedge clk) begin
-        // case ()
-        // endcase
+        case ({way0_WBU_pID_i, way1_WBU_pID_i})
+            4'b00_01 : begin
+                
+            end
+            4'b10_11 : begin
+
+            end
+            default : begin
+
+            end
+        endcase
     end
 
  

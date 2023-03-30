@@ -446,7 +446,7 @@ module BnineCore_way0 (
         .rdAddr_i(WBU_way0_rdAddr_i),
         .rdData_i(WBU_way0_rdData_i),
         .valid_i(WBU_way0_valid_i),
-        .ready_i(),
+        .ready_i(way0_ready_i),
         .way0_pID_i(WBU_way0_pID_i),
         .rdWriteEnable_o(way0_rdWriteEnable_o),
         .rdAddr_o(way0_rdAddr_o),

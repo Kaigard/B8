@@ -10,7 +10,7 @@ module InstFetchUnit_way0 (
     output logic valid_o,
     output logic [31:0] inst_o,
     output logic [31:0] instAddr_o,
-    output logic [1:0] way0_pID_o
+    output logic [2:0] way0_pID_o
 );
 
     //************************************************
@@ -60,10 +60,14 @@ module InstFetchUnit_way0 (
     always_ff @(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
             valid_o <= 1'b0;
-            way0_pID_o <= 2'b10;
+            way0_pID_o <= 3'b011;
         end else if(ready_i && ~REmpty && ~jumpFlag_i) begin
             valid_o <= 1'b1;
-            way0_pID_o <= way0_pID_o + 2;
+            if(way0_pID_o == 3'b011) begin
+                way0_pID_o <= 3'b001;
+            end else if(way0_pID_o == 3'b001) begin
+                way0_pID_o <= 3'b011;
+            end
         end else begin 
             valid_o <= 1'b0;
         end
