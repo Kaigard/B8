@@ -8,7 +8,10 @@ module JumpCtrl(
     output logic way0_jumpFlag_o,
     output logic [31:0] way0_jumpAddr_o,
     output logic way1_jumpFlag_o,
-    output logic [31:0] way1_jumpAddr_o
+    output logic [31:0] way1_jumpAddr_o,
+    // FU_reg clear
+    output logic way0_jumpClear_o,
+    output logic way1_jumpClear_o
 );
 
     // assign way0_jumpFlag_o = way0_jumpFlag_i || way1_jumpFlag_i;
@@ -17,21 +20,28 @@ module JumpCtrl(
     always_comb begin
         case({way0_EU_pID_i, way0_jumpFlag_i, way1_EU_pID_i, way1_jumpFlag_i})
             // 双路同时发射，way1要比way0晚
+            // 0 4
             6'b00_1_01_0 : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = way0_jumpFlag_i;
                 way0_jumpAddr_o = way0_jumpAddr_i;
+                way1_jumpClear_o = 1'b1;
                 way1_jumpFlag_o = way0_jumpFlag_i;
                 way1_jumpAddr_o = way0_jumpAddr_i + 4;
             end
             6'b00_0_01_1 : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = way1_jumpFlag_i;
                 way0_jumpAddr_o = way1_jumpAddr_i;
+                way1_jumpClear_o = 1'b0;
                 way1_jumpFlag_o = way1_jumpFlag_i;
                 way1_jumpAddr_o = way1_jumpAddr_i + 4;
             end
             6'b00_1_01_1 : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = way0_jumpFlag_i;
                 way0_jumpAddr_o = way0_jumpAddr_i;
+                way1_jumpClear_o = 1'b1;
                 way1_jumpFlag_o = way0_jumpFlag_i;
                 way1_jumpAddr_o = way0_jumpAddr_i + 4;
             end
@@ -42,47 +52,63 @@ module JumpCtrl(
             //     way1_jumpFlag_o = way0_jumpFlag_i;
             //     way1_jumpAddr_o = way0_jumpAddr_i + 4;
             // end
+            // 8 4
             6'b10_1_01_0 : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = way0_jumpFlag_i;
                 way0_jumpAddr_o = way0_jumpAddr_i;
+                way1_jumpClear_o = 1'b0;
                 way1_jumpFlag_o = way0_jumpFlag_i;
                 way1_jumpAddr_o = way0_jumpAddr_i + 4;
             end
             6'b10_0_01_1 : begin
+                way0_jumpClear_o = 1'b1;
                 way0_jumpFlag_o = way1_jumpFlag_i;
                 way0_jumpAddr_o = way1_jumpAddr_i + 4;
+                way1_jumpClear_o = 1'b0;
                 way1_jumpFlag_o = way1_jumpFlag_i;
                 way1_jumpAddr_o = way1_jumpAddr_i;
             end
             6'b10_1_01_1 : begin
+                way0_jumpClear_o = 1'b1;
                 way0_jumpFlag_o = way1_jumpFlag_i;
                 way0_jumpAddr_o = way1_jumpAddr_i + 4;
+                way1_jumpClear_o = 1'b0;
                 way1_jumpFlag_o = way1_jumpFlag_i;
                 way1_jumpAddr_o = way1_jumpAddr_i;
             end
 
             // 同样同时双发射
+            // 8 c
             6'b10_1_11_0 : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = way0_jumpFlag_i;
                 way0_jumpAddr_o = way0_jumpAddr_i;
+                way1_jumpClear_o = 1'b1;
                 way1_jumpFlag_o = way0_jumpFlag_i;
                 way1_jumpAddr_o = way0_jumpAddr_i + 4;
             end
             6'b10_0_11_1 : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = way1_jumpFlag_i;
                 way0_jumpAddr_o = way1_jumpAddr_i;
+                way1_jumpClear_o = 1'b0;
                 way1_jumpFlag_o = way1_jumpFlag_i;
                 way1_jumpAddr_o = way1_jumpAddr_i + 4;
             end
             6'b10_1_11_1 : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = way0_jumpFlag_i;
                 way0_jumpAddr_o = way0_jumpAddr_i;
+                way1_jumpClear_o = 1'b1;
                 way1_jumpFlag_o = way0_jumpFlag_i;
                 way1_jumpAddr_o = way0_jumpAddr_i + 4;
             end
             default : begin
+                way0_jumpClear_o = 1'b0;
                 way0_jumpFlag_o = 1'b0;
                 way0_jumpAddr_o = 32'b0;
+                way1_jumpClear_o = 1'b0;
                 way1_jumpFlag_o = 1'b0;
                 way1_jumpAddr_o = 32'b0;
             end

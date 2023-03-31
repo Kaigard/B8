@@ -9,6 +9,7 @@ module BnineCore_way0 (
     // WBU from RegFile
     input logic way0_ready_i,
     // From JumpCtrl
+    input logic way0_jumpClear_i,
     input logic way0_jumpFlag_i,
     input logic [31:0] way0_jumpAddr_i,
     // To I-Cache
@@ -25,6 +26,7 @@ module BnineCore_way0 (
     output logic [4:0] way0_rdAddr_o,
     output logic [63:0] way0_rdData_o,
     output logic [1:0] way0_WBU_pID_o,
+    output logic way0_valid_o,
     // To JumpCtrl
     output logic way0_jumpFlag_o,
     output logic [31:0] way0_jumpAddr_o,
@@ -348,6 +350,7 @@ module BnineCore_way0 (
         .rdData_i(EU_way0_rdData_o),
         .valid_i(EU_way0_valid_o),
         .ready_i(FU_way0_ready_o),
+        .jumpClear_i(way0_jumpClear_i),
         .way0_pID_i(way0_EU_pID_o),
         .opCode_i(EU_way0_opCode_o),
         .funct3_i(EU_way0_funct3_o),
@@ -452,6 +455,7 @@ module BnineCore_way0 (
         .rdAddr_o(way0_rdAddr_o),
         .rdData_o(way0_rdData_o),
         .way0_pID_o(way0_WBU_pID_o),
+        .valid_o(way0_valid_o),
         .ready_o(WBU_way0_ready_o)
     );
 

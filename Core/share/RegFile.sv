@@ -19,11 +19,13 @@ module RegFile(
     input logic [4:0] way0_rdAddr_i,
     input logic [63:0] way0_rdData_i,
     input logic [1:0] way0_WBU_pID_i,
+    input logic way0_valid_i,
     // WBU way1
     input logic way1_rdWriteEnable_i,
     input logic [4:0] way1_rdAddr_i,
     input logic [63:0] way1_rdData_i,
     input logic [1:0] way1_WBU_pID_i,
+    input logic way1_valid_i,
 
     // To DU
     output logic [63:0] way0_rs1ReadData_o,
@@ -55,16 +57,66 @@ module RegFile(
     */
 
     always_comb begin
-        case ({way0_WBU_pID_i, way1_WBU_pID_i})
-            4'b00_01 : begin
+        // if(~(way0_valid_i && way1_valid_i)) begin
+     
+        case ({way0_WBU_pID_i, way0_valid_i, way1_WBU_pID_i, way1_valid_i})
+            6'b00_1_01_1 : begin
                 way0_ready_o = 1'b1;
                 way1_ready_o = 1'b1;
             end
-            4'b10_11 : begin
+            6'b00_0_01_1 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b0;
+            end
+            6'b00_1_01_0 : begin
+                way0_ready_o = 1'b0;
+                way1_ready_o = 1'b1;
+            end
+            6'b00_0_01_0 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b0;
+            end
+            6'b10_1_11_1 : begin
                 way0_ready_o = 1'b1;
                 way1_ready_o = 1'b1;
             end
-            4'b10_01 : begin
+            6'b10_0_11_1 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b0;
+            end
+            6'b10_1_11_0 : begin
+                way0_ready_o = 1'b0;
+                way1_ready_o = 1'b1;
+            end
+            6'b10_0_11_0 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b1;
+            end
+            6'b10_1_01_1 : begin
+                way0_ready_o = 1'b0;
+                way1_ready_o = 1'b1;
+            end
+            // 6'b10_1_00_0 : begin
+            //     way0_ready_o = 1'b1;
+            //     way1_ready_o = 1'b1;
+            // end
+            6'b00_0_11_1 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b0;
+            end
+            6'b00_1_11_1 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b1;
+            end
+            6'b00_0_11_0 : begin
+                way0_ready_o = 1'b1;
+                way1_ready_o = 1'b0;
+            end
+            6'b10_1_00_0 : begin
+                way0_ready_o = 1'b0;
+                way1_ready_o = 1'b1;
+            end
+            6'b10_0_00_0 : begin
                 way0_ready_o = 1'b0;
                 way1_ready_o = 1'b1;
             end
@@ -72,7 +124,8 @@ module RegFile(
                 way0_ready_o = 1'b1;
                 way1_ready_o = 1'b1;
             end
-        endcase
+        endcase 
+
     end
     
 

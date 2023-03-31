@@ -53,7 +53,7 @@ module PCU_way1
                 .Jump( jumpFlag_i ) 
             );
 
-            DataBuffer #( .DataWidth(32) )
+            DataBuffer #( .DataWidth(1) )
             EU_request_Buffer_way1 ( 
                 .Clk( clk ), 
                 .Rst( reset_n ), 

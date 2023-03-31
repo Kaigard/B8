@@ -20,12 +20,14 @@ module BnineCore (
     wire [31:0] way1_instAddr_fetch_o;
 
     // JumpCtrl
+    wire way0_jumpClear_o;
     wire way0_jumpFlag_o;
     wire [31:0] way0_jumpAddr_o;
     wire [1:0] way0_EU_pID_o;
     wire way0_jumpFlag_i;
     wire [31:0] way0_jumpAddr_i;
     
+    wire way1_jumpClear_o;
     wire way1_jumpFlag_o;
     wire [31:0] way1_jumpAddr_o;
     wire [1:0] way1_EU_pID_o;
@@ -47,9 +49,13 @@ module BnineCore (
     wire [63:0] way1_rdData_o;
     wire [1:0] way1_WBU_pID_o;
 
+    wire way0_valid_o;
+    wire way1_valid_o;
+
     // WBU
     wire way0_ready_i;
     wire way1_ready_i;
+
 
     testRom u_testRom_way0 (
         .clk(clk),
@@ -93,6 +99,7 @@ module BnineCore (
         .way0_rs2ReadData_i(way0_rs2ReadData_i),
         .way0_ready_i(way0_ready_i),
         // From JumpCtrl
+        .way0_jumpClear_i(way0_jumpClear_o),
         .way0_jumpFlag_i(way0_jumpFlag_i),
         .way0_jumpAddr_i(way0_jumpAddr_i),
         // To I-Cache
@@ -109,6 +116,7 @@ module BnineCore (
         .way0_rdAddr_o(way0_rdAddr_o),
         .way0_rdData_o(way0_rdData_o),
         .way0_WBU_pID_o(way0_WBU_pID_o),
+        .way0_valid_o(way0_valid_o),
         // To JumpCtrl
         .way0_jumpFlag_o(way0_jumpFlag_o),
         .way0_jumpAddr_o(way0_jumpAddr_o),
@@ -129,6 +137,7 @@ module BnineCore (
         .way1_rs2ReadData_i(way1_rs2ReadData_i),
         .way1_ready_i(way1_ready_i),
         // From JumpCtrl
+        .way1_jumpClear_i(way1_jumpClear_o),
         .way1_jumpFlag_i(way1_jumpFlag_i),
         .way1_jumpAddr_i(way1_jumpAddr_i),
         // To I-Cache
@@ -140,6 +149,7 @@ module BnineCore (
         .way1_rs1Addr_o(way1_rs1Addr_o),
         .way1_rs2Addr_o(way1_rs2Addr_o),
         .way1_DU_pID_o(way1_DU_pID_o),
+        .way1_valid_o(way1_valid_o),
         // WBU to RegFile
         .way1_rdWriteEnable_o(way1_rdWriteEnable_o),
         .way1_rdAddr_o(way1_rdAddr_o),
@@ -181,6 +191,9 @@ module BnineCore (
         .way1_rdData_i(way1_rdData_o),
         .way1_WBU_pID_i(way1_WBU_pID_o),
 
+        .way0_valid_i(way0_valid_o),
+        .way1_valid_i(way1_valid_o),
+
         // To DU
         .way0_rs1ReadData_o(way0_rs1ReadData_i),
         .way0_rs2ReadData_o(way0_rs2ReadData_i),
@@ -206,7 +219,10 @@ module BnineCore (
         .way0_jumpAddr_o(way0_jumpAddr_i),
         // To way1
         .way1_jumpFlag_o(way1_jumpFlag_i),
-        .way1_jumpAddr_o(way1_jumpAddr_i)
+        .way1_jumpAddr_o(way1_jumpAddr_i),
+        // FU_reg clear
+        .way0_jumpClear_o(way0_jumpClear_o),
+        .way1_jumpClear_o(way1_jumpClear_o)
     );
 
 endmodule

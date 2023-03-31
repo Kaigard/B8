@@ -16,6 +16,7 @@ module WriteBackUnit_way0(
     output logic rdWriteEnable_o,
     output logic [4:0] rdAddr_o,
     output logic [63:0] rdData_o,
+    output logic valid_o,
     output logic ready_o,
     output logic [1:0] way0_pID_o
 );
@@ -23,6 +24,7 @@ module WriteBackUnit_way0(
     assign rdWriteEnable_o = rdWriteEnable_i && valid_i;
     assign rdAddr_o = rdAddr_i;
     assign rdData_o = rdData_i;
+    assign valid_o = valid_i;
     assign ready_o = ready_i;
     assign way0_pID_o = way0_pID_i;
 

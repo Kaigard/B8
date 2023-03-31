@@ -8,6 +8,7 @@ module BnineCore_way1 (
     input logic [63:0] way1_rs2ReadData_i,
     input logic way1_ready_i,
     // From JumpCtrl
+    input logic way1_jumpClear_i,
     input logic way1_jumpFlag_i,
     input logic [31:0] way1_jumpAddr_i,
     // To I-Cache
@@ -24,6 +25,7 @@ module BnineCore_way1 (
     output logic [4:0] way1_rdAddr_o,
     output logic [63:0] way1_rdData_o,
     output logic [1:0] way1_WBU_pID_o,
+    output logic way1_valid_o,
     // To JumpCtrl
     output logic way1_jumpFlag_o,
     output logic [31:0] way1_jumpAddr_o,
@@ -350,6 +352,7 @@ module BnineCore_way1 (
         .rdData_i(EU_way1_rdData_o),
         .valid_i(EU_way1_valid_o),
         .ready_i(FU_way1_ready_o),
+        .jumpClear_i(way1_jumpClear_i),
         .way1_pID_i(way1_EU_pID_o),
         .opCode_i(EU_way1_opCode_o),
         .funct3_i(EU_way1_funct3_o),
@@ -454,7 +457,8 @@ module BnineCore_way1 (
         .rdAddr_o(way1_rdAddr_o),
         .rdData_o(way1_rdData_o),
         .way1_pID_o(way1_WBU_pID_o),
-        .ready_o(WBU_way1_ready_o)
+        .ready_o(WBU_way1_ready_o),
+        .valid_o(way1_valid_o)
     );
 
 endmodule
